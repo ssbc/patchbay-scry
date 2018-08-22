@@ -2,7 +2,7 @@
   "name": "patchbay-scry",
   "version": "0.0.1",
   "description": "figure out a meeting time with friends, (like doodle, but for scuttlebutt)",
-  "main": "index.js",
+  "main": "plugs/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,5 +22,18 @@
   "bugs": {
     "url": "https://github.com/mixmix/patchbay-scry/issues"
   },
-  "homepage": "https://github.com/mixmix/patchbay-scry#readme"
+  "homepage": "https://github.com/mixmix/patchbay-scry#readme",
+  "dependencies": {
+    "depject": "^4.1.1",
+    "depnest": "^1.3.0",
+    "marama": "^1.2.1",
+    "mutant": "^3.22.1",
+    "read-directory": "^3.0.0",
+    "scuttle-poll": "^1.2.1"
+  },
+  "devDependencies": {
+    "electro": "^2.1.1",
+    "electron": "^2.0.7",
+    "micro-css": "^2.0.1"
+  }
 }
