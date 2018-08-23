@@ -27,7 +27,7 @@
   "dependencies": {
     "depject": "^4.1.1",
     "depnest": "^1.3.0",
-    "marama": "^1.2.1",
+    "marama": "^1.2.2",
     "mutant": "^3.22.1",
     "read-directory": "^3.0.0",
     "scuttle-poll": "^1.2.1"
