@@ -1,6 +1,7 @@
 ScryNew {
   --br: 5px
   --boundary: 1rem
+  --feature-color: hsla(295, 67%, 60%, 1)
 
   font-family: sans, arial
 
@@ -27,7 +28,7 @@ ScryNew {
       margin-bottom: 1rem
 
       button {
-        color: hsla(295, 67%, 60%, 1)
+        color: var(--feature-color)
         font-size: .8rem
 
         background: none
@@ -65,11 +66,54 @@ ScryNew {
     }
 
     div.picker {
-      margin: 0 var(--boundary) var(--boundary)
-
-      min-height: 10rem
+      color: #666
       background: #fff
       border-radius: var(--br)
+      margin: 0 var(--boundary) var(--boundary)
+
+      div.time-entry {
+        padding: calc(var(--boundary) / 2)
+        border-bottom: 1px solid hsla(0, 0%, 0%, .2)
+
+        display: flex
+        justify-content: space-between
+
+        div.close { cursor: pointer }
+      }
+
+      div.new-time-entry {
+        font-size: .9rem
+        position: relative
+
+        div.dropdown {
+          position: absolute
+          left: calc(var(--boundary) / 2)
+          right: calc(var(--boundary) / 2)
+          top: calc(var(--boundary) / 2)
+
+          background: #fff
+          max-height: 20vh
+          overflow-y: scroll
+          padding: calc(var(--boundary) / 2)
+
+          div {
+            padding: 2px
+            :hover {
+              background: var(--feature-color)
+              color: #fff
+            }
+          }
+        }
+
+        div.add {
+          color: var(--feature-color)
+          padding: calc(var(--boundary) / 2)
+          cursor: pointer
+
+          display: flex
+          justify-content: center
+        }
+      }
     }
 
     div.timezone {
@@ -149,7 +193,8 @@ MaramaDayTile {
 
   -future {
     background: none
-    --color: deepskyblue
+    --color: hsla(320, 100%, 60%, 1)
+    /* deepskyblue */
 
     -events {
       border: 1px solid var(--color)
