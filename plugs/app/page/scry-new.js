@@ -26,7 +26,7 @@ exports.create = function (api) {
     const { title } = getContent(location)
 
     const page = h('Scry -show', { title: '/scry/new' }, [
-      h('h1', ['Scry', h('i.fa.fa-diamond')]),
+      h('h1', ['Scry', h('i.fa.fa-diamond')])
     ])
 
     page.scroll = () => {} // stops keyboard shortcuts from breaking

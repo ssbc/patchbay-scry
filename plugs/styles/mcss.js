@@ -18,7 +18,7 @@ exports.create = function (api) {
 
   function mcss (sofar = {}) {
     sofar.marama = getMaramaMCSS()
-    
+
     each(contents, (content, [filename]) => {
       // const name = basename(filename)
       sofar[`scry-${filename}`] = content

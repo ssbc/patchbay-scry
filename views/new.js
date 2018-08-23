@@ -50,7 +50,6 @@ module.exports = function ScryNew (opts) {
 
   return page
 
-
   function setMonth (d) {
     state.monthIndex.set(state.monthIndex() + d)
   }
@@ -59,7 +58,6 @@ module.exports = function ScryNew (opts) {
     const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]
 
     return computed(monthIndex, mi => {
-
       const view = new Date()
       view.setMonth(mi)
 
@@ -87,9 +85,7 @@ module.exports = function ScryNew (opts) {
       state.days.set(filteredEvents)
     }
   }
-
 }
-
 
 function getTimezone () {
   try {

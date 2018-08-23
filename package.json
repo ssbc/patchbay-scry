@@ -4,7 +4,8 @@
   "description": "figure out a meeting time with friends, (like doodle, but for scuttlebutt)",
   "main": "plugs/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "standard --fix",
+    "test": "standard"
   },
   "repository": {
     "type": "git",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "electro": "^2.1.1",
     "electron": "^2.0.7",
-    "micro-css": "^2.0.1"
+    "micro-css": "^2.0.1",
+    "standard": "^11.0.1"
   }
 }
