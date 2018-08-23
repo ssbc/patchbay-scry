@@ -1,23 +1,24 @@
-const { h, Struct, Array: MutantArray, computed } = require('mutant')
+const { h, Struct, Array: MutantArray, when, computed } = require('mutant')
 const Marama = require('marama')
 
 module.exports = function ScryNew (opts) {
   const state = Struct({
-    month: new Date().getMonth() + 1,
-    events: MutantArray([])
+    monthIndex: new Date().getMonth(),
+    days: MutantArray([]),
+    pristine: true
   })
 
-  const page = h('div.page', [
-    h('div.picker', [
+  const page = h('ScryNew', [
+    h('div.cal-picker', [
       h('div.month-picker', [
         h('button', { 'ev-click': () => setMonth(-1) }, '<'),
-        monthName(state.month),
+        MonthTitle(state.monthIndex),
         h('button', { 'ev-click': () => setMonth(+1) }, '>')
       ]),
-      computed(state, ({ month, events }) => {
+      computed(state, ({ monthIndex, days }) => {
         return Marama({
-          month,
-          events,
+          monthIndex,
+          events: days,
           onSelect,
           styles: {
             weekFormat: 'rows',
@@ -28,47 +29,76 @@ module.exports = function ScryNew (opts) {
         })
       })
     ]),
-    h('div.dates', [
-      computed(state.events, events => {
-        return events
-          .sort((a, b) => a.date - b.date)
-          .map(e => h('div.date', e.date.toDateString()))
-      })
-    ])
+    when(state.pristine,
+      h('div.time-picker-pristine', [
+        h('label', 'Dates and Times'),
+        h('div.instruction', 'Select one or multiple dates')
+      ]),
+      h('div.time-picker', [
+        h('label', computed(state.days, days => `Same times for all dates (${days.length})`)),
+        h('div.picker'),
+        h('div.timezone', [
+          h('label', 'Timezone of your scry is'),
+          h('div.zone', [
+            getTimezone(),
+            h('span', ['(UTC ', getTimezoneOffset(), ')'])
+          ])
+        ])
+      ])
+    )
   ])
 
   return page
 
 
   function setMonth (d) {
-    state.month.set(state.month() + d)
+    state.monthIndex.set(state.monthIndex() + d)
   }
 
-  function monthName (month) {
-    const MONTHS = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ]
+  function MonthTitle (monthIndex) {
+    const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]
 
-    return computed(state.month, m => {
-      var monthIndex = m - 1
-      while (monthIndex < 0) { monthIndex += 12 }
-      return MONTHS[(monthIndex) % 12]
+    return computed(monthIndex, mi => {
+
+      const view = new Date()
+      view.setMonth(mi)
+
+      return `${MONTHS[view.getMonth()]} ${view.getFullYear()}`
+
+      // while (monthIndex < 0) { monthIndex += 12 }
+      // return `${MONTHS[(monthIndex) % 12]} ${year}`
     })
   }
 
-  function onSelect ({ gte, lt, events }) {
-    if (!events.length) addEmptyEvent()
+  function onSelect ({ gte, lt, events: days }) {
+    if (!days.length) addEmptyEvent()
     else clearDay()
 
+    state.pristine.set(false)
+
     function addEmptyEvent () {
-      state.events.push({
+      state.days.push({
         date: gte,
         data: {attending: true}
       })
     }
     function clearDay () {
-      const filteredEvents = state.events().filter(e => !events.includes(e))
-      state.events.set(filteredEvents)
+      const filteredEvents = state.days().filter(e => !days.includes(e))
+      state.days.set(filteredEvents)
     }
   }
 
 }
 
+
+function getTimezone () {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  } catch (e) {
+    return '??'
+  }
+}
+
+function getTimezoneOffset () {
+  return new Date().getTimezoneOffset() / 60
+}

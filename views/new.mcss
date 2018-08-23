@@ -1,47 +1,139 @@
-div.page { 
+ScryNew {
+  --br: 5px
+  --boundary: 1rem
+
+  font-family: sans, arial
+
   display: grid
   grid-template-columns: auto 1fr
-  grid-gap: 2rem
+  grid-template-rows: auto auto
+  grid-column-gap: 1rem
+  grid-row-gap: 0
 
-  margin: 3rem
+  div.cal-picker {
+    background: #fff
+    padding: var(--boundary) 3rem
+    border-radius: var(--br)
 
-  div.picker {
     div.month-picker {
+      color: #444
       font-family: sans
+      font-size: 1.15rem
+
       display: flex
       justify-content: space-between
       align-items: center
 
       margin-bottom: 1rem
 
-      button { 
+      button {
+        color: hsla(295, 67%, 60%, 1)
+        font-size: .8rem
+
         background: none
         border: none
         cursor: pointer
         font-size: 1.5rem
+
+        :focus { outline: none }
+      }
+    }
+
+    div.Marama {}
+  }
+
+  div.time-picker {
+    grid-row: 1 / 3
+    grid-column: 2
+
+    max-width: 350px
+    color: #fff
+    background: hsla(0, 0%, 100%, .3)
+    border-radius: var(--br)
+
+    display: grid
+    grid-template-rows: auto 1fr auto
+    align-items: start
+
+    label {
+      font-size: .7rem
+      letter-spacing: 1px
+      font-weight: 600
+      text-transform: uppercase
+
+      margin: var(--boundary) var(--boundary) calc(var(--boundary) / 2) var(--boundary)
+    }
+
+    div.picker {
+      margin: 0 var(--boundary) var(--boundary)
+
+      min-height: 10rem
+      background: #fff
+      border-radius: var(--br)
+    }
+
+    div.timezone {
+      padding: var(--boundary)
+      border-top: hsla(0, 0%, 100%, .5) 1px dashed
+
+      label {}
+
+      div.zone {
+        margin-top: .3rem
+
+        font-weight: 600
+        display: flex
+        align-items: center
+
+        span {
+          margin-left: .5rem
+          font-weight: initial
+          font-size: .8rem
+        }
       }
     }
   }
 
-  div.dates {
-    div.date {
-      background: rebeccapurple
-      color: #fff
-      font-family: sans
-      font-weight: 600
+  div.time-picker-pristine {
+    grid-row: 1 / 3
+    grid-column: 2
 
-      padding: .5rem
-      margin-bottom: .5rem
+    color: #fff
+    max-width: 350px
+
+    display: grid
+    grid-gap: .5rem
+    justify-content: center
+    justify-items: center
+    align-content: center
+
+    label {
+      font-size: .8rem
+      letter-spacing: 1px
+      font-weight: 600
+      text-transform: uppercase
+    }
+    div.instruction {
     }
   }
 }
 
+/* over-rides or extension to marama */
+
+Marama {
+  grid-template-rows: repeat(7, var(--tile-width)) !important
+}
+
+MaramaDayLabel {
+  font-size: 1rem
+}
+
 MaramaDayTile {
   border-radius: 4rem
-  border: 1px solid hsl(0, 0%, 100%)
+  border: 1px solid hsla(0, 0%, 100%, 0)
 
   -past {
-    cursor: initial
+    cursor: not-allowed
     background: none
     color: hsl(0, 0%, 60%)
 
@@ -57,13 +149,14 @@ MaramaDayTile {
 
   -future {
     background: none
+    --color: deepskyblue
 
     -events {
-      border: 1px solid deepskyblue
-      color: deepskyblue
+      border: 1px solid var(--color)
+      color: var(--color)
 
       -attending {
-        background: deepskyblue
+        background: var(--color)
         color: #fff
       }
     }
@@ -78,6 +171,3 @@ MaramaDayTile {
   }
 }
 
-MaramaDayLabel {
-  font-size: 1rem
-}
