@@ -1,5 +1,6 @@
 const { h, Value, Struct, Array: MutantArray, when, computed } = require('mutant')
 const Marama = require('marama')
+const TimePicker = require('./component/time-picker.js')
 
 module.exports = function ScryNew (opts) {
   const {
@@ -41,15 +42,7 @@ module.exports = function ScryNew (opts) {
       ]),
       h('div.time-picker', [
         h('label', computed(state.days, days => `Same times for all dates (${days.length})`)),
-        h('div.picker', [
-          computed(state.times, times => {
-            return times
-              .map(time => time.date)
-              // .sort((a, b) => a - b)
-              .map(TimeEntry)
-          }),
-          NewTimeEntry()
-        ]),
+        TimePicker(state),
         h('div.timezone', [
           h('label', 'Timezone of your scry is'),
           h('div.zone', [
@@ -65,60 +58,6 @@ module.exports = function ScryNew (opts) {
 
   function setMonth (d) {
     state.monthIndex.set(state.monthIndex() + d)
-  }
-
-  function NewTimeEntry () {
-    var active = Value(false)
-
-    // TODO extract and only run once
-    const options = Array(96).fill(0).map((_, i) => {
-      var time = new Date ()
-      time.setHours(0)
-      time.setMinutes(15 * i)
-      return time
-    })
-    const DAY_START_SELECTOR = 'day-start'
-
-    const el = h('div.new-time-entry', [
-      when(active,
-        h('div.dropdown', options.map((time, i) => {
-          return h('div',
-            {
-              'ev-click': () => {
-                state.times.push(Event(time))
-                active.set(false)
-              },
-              className: i === 32 ? DAY_START_SELECTOR : ''
-            },
-            printTime(time)
-          )
-        }))
-      ),
-      h('div.add', { 'ev-click': activate }, '+ Add times')
-    ])
-
-    return el
-
-    function activate () {
-      active.set(true) 
-
-      const target = el.querySelector('.' + DAY_START_SELECTOR)
-      target.parentNode.scrollTop = target.offsetTop - target.parentNode.offsetTop + 4
-    }
-  }
-
-  function TimeEntry (date) {
-    return h('div.time-entry', [
-      h('div.time', printTime(date)),
-      h('div.close', { 'ev-click': () => removeTime(date) }, '×')
-      // h('i.fa.fa-close')
-    ])
-  }
-
-  function removeTime (d) {
-    var ev = state.times.find(time => time.date === d)
-
-    if (ev) state.times.delete(ev)
   }
 
   function MonthTitle (monthIndex) {
@@ -169,14 +108,4 @@ function getTimezone () {
 function getTimezoneOffset () {
   const offset = new Date().getTimezoneOffset() / -60
   return offset > 0 ? `+${offset}` : offset
-}
-
-function printTime (date) {
-  var hours = date.getHours().toString()
-  while (hours.length < 2) hours = `0${hours}`
-
-  var minutes = date.getMinutes().toString()
-  while (minutes.length < 2) minutes = `0${minutes}`
-
-  return `${hours}:${minutes}`
 }
