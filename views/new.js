@@ -1,6 +1,5 @@
-const { h, Struct, Array: MutantArray, when, computed } = require('mutant')
-const DayPicker = require('./component/day-picker.js')
-const TimePicker = require('./component/time-picker.js')
+const { h, Struct, Array: MutantArray, computed } = require('mutant')
+const PickTimes = require('./new-steps/pick-times')
 
 module.exports = function ScryNew (opts) {
   // const {
@@ -8,44 +7,17 @@ module.exports = function ScryNew (opts) {
   // } = opts
 
   const state = Struct({
+    step: 0,
     monthIndex: new Date().getMonth(),
     days: MutantArray([]),
     times: MutantArray([])
   })
 
   return h('ScryNew', [
-    DayPicker(state),
-    when(computed(state.days, d => Boolean(d.length)),
-      h('div.time-picker', [
-        h('label', computed(state.days, days => `Same times for all dates (${days.length})`)),
-        TimePicker(state),
-        h('div.timezone', [
-          h('label', 'Timezone of your scry is'),
-          h('div.zone', [
-            getTimezone(),
-            h('span', ['(UTC ', getTimezoneOffset(), ')'])
-          ])
-        ])
-      ]),
-      h('div.time-picker-pristine', [
-        h('label', 'Dates and Times'),
-        h('div.instruction', 'Select one or multiple dates')
-      ])
-    )
+    computed(state.step, step => {
+      switch (step) {
+        case 0: return PickTimes(state)
+      }
+    })
   ])
-}
-
-// functions
-
-function getTimezone () {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone
-  } catch (e) {
-    return '??'
-  }
-}
-
-function getTimezoneOffset () {
-  const offset = new Date().getTimezoneOffset() / -60
-  return offset > 0 ? `+${offset}` : offset
 }
