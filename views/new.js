@@ -1,4 +1,4 @@
-const { h, Value, Struct, Array: MutantArray, when, computed } = require('mutant')
+const { h, Struct, Array: MutantArray, when, computed } = require('mutant')
 const DayPicker = require('./component/day-picker.js')
 const TimePicker = require('./component/time-picker.js')
 

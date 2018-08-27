@@ -16,7 +16,7 @@ function NewTimeEntry (times) {
   var active = Value(false)
 
   const options = Array(96).fill(0).map((_, i) => {
-    var time = new Date ()
+    var time = new Date()
     time.setHours(0)
     time.setMinutes(15 * i)
     return time
@@ -44,7 +44,7 @@ function NewTimeEntry (times) {
   return el
 
   function activate () {
-    active.set(true) 
+    active.set(true)
 
     const target = el.querySelector('.' + DAY_START_SELECTOR)
     target.parentNode.scrollTop = target.offsetTop - target.parentNode.offsetTop + 4
