@@ -76,25 +76,35 @@ module.exports = function ScryNew (opts) {
       time.setHours(0)
       time.setMinutes(15 * i)
       return time
-
     })
+    const DAY_START_SELECTOR = 'day-start'
 
-    return h('div.new-time-entry', [
+    const el = h('div.new-time-entry', [
       when(active,
-        h('div.dropdown', options.map(time => {
+        h('div.dropdown', options.map((time, i) => {
           return h('div',
             {
-              'ev-click': () => { 
+              'ev-click': () => {
                 state.times.push(Event(time))
                 active.set(false)
-              }
+              },
+              className: i === 32 ? DAY_START_SELECTOR : ''
             },
             printTime(time)
           )
         }))
       ),
-      h('div.add', { 'ev-click': () => active.set(true) }, '+ Add more times')
+      h('div.add', { 'ev-click': activate }, '+ Add times')
     ])
+
+    return el
+
+    function activate () {
+      active.set(true) 
+
+      const target = el.querySelector('.' + DAY_START_SELECTOR)
+      target.parentNode.scrollTop = target.offsetTop - target.parentNode.offsetTop + 4
+    }
   }
 
   function TimeEntry (date) {
@@ -157,7 +167,8 @@ function getTimezone () {
 }
 
 function getTimezoneOffset () {
-  return new Date().getTimezoneOffset() / 60
+  const offset = new Date().getTimezoneOffset() / -60
+  return offset > 0 ? `+${offset}` : offset
 }
 
 function printTime (date) {
