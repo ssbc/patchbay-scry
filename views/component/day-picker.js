@@ -2,6 +2,8 @@ const { h, computed } = require('mutant')
 const Marama = require('marama')
 
 module.exports = function DayPicker (state) {
+  const startOfToday = startOfDay()
+
   return h('ScryDayPicker', [
     h('div.month-picker', [
       h('button', { 'ev-click': () => setMonth(-1) }, '<'),
@@ -27,18 +29,18 @@ module.exports = function DayPicker (state) {
     state.monthIndex.set(state.monthIndex() + d)
   }
 
-  function onSelect ({ gte, lt, events: days }) {
-    if (!days.length) addEmptyEvent()
-    else clearDay()
+  function onSelect ({ gte, lt, events: dayEvents }) {
+    if (gte < startOfToday) return
 
-    state.pristine.set(false)
+    if (!dayEvents.length) addEmptyEvent()
+    else clearDay()
 
     function addEmptyEvent () {
       state.days.push(Event(gte))
     }
     function clearDay () {
-      const filteredEvents = state.days().filter(e => !days.includes(e))
-      state.days.set(filteredEvents)
+      const prunedEvents = state.days().filter(e => !dayEvents.includes(e))
+      state.days.set(prunedEvents)
     }
   }
 }
@@ -62,4 +64,8 @@ function Event (date) {
     date,
     data: {attending: true}
   }
+}
+
+function startOfDay (d = new Date()) {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }

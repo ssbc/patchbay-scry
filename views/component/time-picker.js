@@ -28,10 +28,7 @@ function NewTimeEntry (times) {
       h('div.dropdown', options.map((time, i) => {
         return h('div',
           {
-            'ev-click': () => {
-              times.push(Event(time))
-              active.set(false)
-            },
+            'ev-click': () => select(time),
             className: i === 32 ? DAY_START_SELECTOR : ''
           },
           printTime(time)
@@ -42,6 +39,14 @@ function NewTimeEntry (times) {
   ])
 
   return el
+
+  function select (time) {
+    if (!times.find(t => t.date === time)) {
+      // time not yet selected
+      times.push(Event(time))
+    }
+    active.set(false)
+  }
 
   function activate () {
     active.set(true)
