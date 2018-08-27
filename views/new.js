@@ -1,5 +1,5 @@
 const { h, Value, Struct, Array: MutantArray, when, computed } = require('mutant')
-const Marama = require('marama')
+const DayPicker = require('./component/day-picker.js')
 const TimePicker = require('./component/time-picker.js')
 
 module.exports = function ScryNew (opts) {
@@ -15,26 +15,7 @@ module.exports = function ScryNew (opts) {
   })
 
   return h('ScryNew', [
-    h('div.cal-picker', [
-      h('div.month-picker', [
-        h('button', { 'ev-click': () => setMonth(-1) }, '<'),
-        MonthTitle(state.monthIndex),
-        h('button', { 'ev-click': () => setMonth(+1) }, '>')
-      ]),
-      computed(state, ({ monthIndex, days }) => {
-        return Marama({
-          monthIndex,
-          events: days,
-          onSelect,
-          styles: {
-            weekFormat: 'rows',
-            showNumbers: true,
-            tileRadius: 16,
-            tileGap: 8
-          }
-        })
-      })
-    ]),
+    DayPicker(state),
     when(state.pristine,
       h('div.time-picker-pristine', [
         h('label', 'Dates and Times'),
@@ -53,49 +34,9 @@ module.exports = function ScryNew (opts) {
       ])
     )
   ])
-
-  // functions
-
-  function setMonth (d) {
-    state.monthIndex.set(state.monthIndex() + d)
-  }
-
-  function MonthTitle (monthIndex) {
-    const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]
-
-    return computed(monthIndex, mi => {
-      const view = new Date()
-      view.setMonth(mi)
-
-      return `${MONTHS[view.getMonth()]} ${view.getFullYear()}`
-
-      // while (monthIndex < 0) { monthIndex += 12 }
-      // return `${MONTHS[(monthIndex) % 12]} ${year}`
-    })
-  }
-
-  function onSelect ({ gte, lt, events: days }) {
-    if (!days.length) addEmptyEvent()
-    else clearDay()
-
-    state.pristine.set(false)
-
-    function addEmptyEvent () {
-      state.days.push(Event(gte))
-    }
-    function clearDay () {
-      const filteredEvents = state.days().filter(e => !days.includes(e))
-      state.days.set(filteredEvents)
-    }
-  }
 }
 
-function Event (date) {
-  return {
-    date,
-    data: {attending: true}
-  }
-}
+// functions
 
 function getTimezone () {
   try {

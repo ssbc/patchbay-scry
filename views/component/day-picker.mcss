@@ -1,0 +1,32 @@
+ScryDayPicker {
+	background: #fff
+	padding: var(--boundary) 3rem
+	border-radius: var(--br)
+
+	div.month-picker {
+		color: #444
+		font-family: sans
+		font-size: 1.15rem
+
+		display: flex
+		justify-content: space-between
+		align-items: center
+
+		margin-bottom: 1rem
+
+		button {
+			color: var(--feature-color)
+			font-size: .8rem
+
+			background: none
+			border: none
+			cursor: pointer
+			font-size: 1.5rem
+
+			:focus { outline: none }
+		}
+	}
+
+	div.Marama {}
+
+}
