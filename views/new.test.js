@@ -18,7 +18,6 @@ document.head.appendChild(
       background: var(--texture), var(--gradient);
       background-blend-mode: darken;
 
-      width: 100vh;
       height: 100vh;
       padding: 2rem;
     }

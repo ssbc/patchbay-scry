@@ -1,13 +1,28 @@
-const { h, when, computed } = require('mutant')
+const { h, computed } = require('mutant')
 const DayPicker = require('../component/day-picker.js')
 const TimePicker = require('../component/time-picker.js')
 
-module.exports = function PickTimes (state) {
+module.exports = function PickTimes ({ state, prev, next }) {
+  const nextBtn = computed(state, ({ days, times }) => {
+    var opts = (!days.length || !times.length)
+      ? { disabled: 'disabled' }
+      : { className: '-primary', 'ev-click': next }
+
+    return h('button', opts, 'Scry')
+  })
+
   return h('ScryNewPickTimes', [
     DayPicker(state),
-    when(computed(state.days, d => Boolean(d.length)),
-      h('div.time-picker', [
-        h('label', computed(state.days, days => `Same times for all dates (${days.length})`)),
+    computed(state.days, days => {
+      if (!days.length) {
+        return h('div.time-picker-pristine', [
+          h('label', 'Dates and Times'),
+          h('div.instruction', 'Select one or multiple dates')
+        ])
+      }
+
+      return h('div.time-picker', [
+        h('label', `Same times for all dates (${days.length})`),
         TimePicker(state),
         h('div.timezone', [
           h('label', 'Timezone of your scry is'),
@@ -16,12 +31,12 @@ module.exports = function PickTimes (state) {
             h('span', ['(UTC ', getTimezoneOffset(), ')'])
           ])
         ])
-      ]),
-      h('div.time-picker-pristine', [
-        h('label', 'Dates and Times'),
-        h('div.instruction', 'Select one or multiple dates')
       ])
-    )
+    }),
+    h('div.actions', [
+      prev ? h('button', { 'ev-click': prev }, 'Back') : null,
+      next ? nextBtn : null
+    ])
   ])
 }
 

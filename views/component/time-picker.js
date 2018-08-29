@@ -2,8 +2,8 @@ const { h, computed, Value, when } = require('mutant')
 
 module.exports = function TimePicker ({ times }) {
   return h('ScryTimePicker', [
-    computed(times, times => {
-      return times
+    computed(times, _times => {
+      return _times
         .map(time => time.date)
         // .sort((a, b) => a - b)
         .map(t => TimeEntry(t, times))
