@@ -11,6 +11,7 @@ module.exports = function ScryNew (opts) {
   const initialState = {
     step: 0,
     title: '',
+    closesAt: getInitialClosesAt(),
     monthIndex: new Date().getMonth(),
     days: MutantArray([]),
     times: MutantArray([])
@@ -56,7 +57,6 @@ module.exports = function ScryNew (opts) {
       title,
       choices
     }
-    debugger
 
     scuttle.poll.sync.publishMeetingTime(opts, (err, data) => {
       if (err) return console.debug(err)
@@ -65,4 +65,10 @@ module.exports = function ScryNew (opts) {
       afterPublish(data)
     })
   }
+}
+
+function getInitialClosesAt () {
+  const d = new Date()
+
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 3, 12)
 }
