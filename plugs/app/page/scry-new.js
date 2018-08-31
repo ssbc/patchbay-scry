@@ -1,9 +1,8 @@
 const nest = require('depnest')
 const { h } = require('mutant')
-// const Scuttle = require('scuttle-dark-crystal')
-const getContent = require('ssb-msg-content')
+const Scuttle = require('scuttle-poll')
 
-const ScryNew = require('../../../views/show')
+const ScryNew = require('../../../views/new')
 
 exports.gives = nest({
   'app.page.scryNew': true
@@ -12,8 +11,8 @@ exports.gives = nest({
 exports.needs = nest({
   // 'about.html.avatar': 'first',
   // 'app.html.modal': 'first',
-  // 'app.sync.goTo': 'first',
-  // 'sbot.obs.connection': 'first'
+  'app.sync.goTo': 'first',
+  'sbot.obs.connection': 'first'
 })
 
 exports.create = function (api) {
@@ -23,10 +22,12 @@ exports.create = function (api) {
 
   function scryNewPage (location) {
     const scuttle = Scuttle(api.sbot.obs.connection)
-    const { title } = getContent(location)
 
-    const page = h('Scry -show', { title: '/scry/new' }, [
-      h('h1', ['Scry', h('i.fa.fa-diamond')])
+    const page = h('Scry -new', { title: '/scry/new' }, [
+      ScryNew({
+        scuttle,
+        afterPublish: (msg) => api.app.sync.goTo(msg)
+      })
     ])
 
     page.scroll = () => {} // stops keyboard shortcuts from breaking

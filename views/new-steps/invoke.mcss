@@ -49,6 +49,10 @@ ScryNewInvoke {
       div.closes-at-helper {
         margin-left: .5rem
       }
+
+      button {
+        min-width: initial
+      }
     }
 
     (input) {

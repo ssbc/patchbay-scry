@@ -10,7 +10,7 @@ module.exports = function PickTimes ({ state, prev, next }) {
   })
 
   return h('ScryNewInvoke', [
-    h('h1', 'New Scry'),
+    h('h1', 'Scry invocation'),
     h('div.details', [
       h('label.closes-at', 'Title'),
       h('input',
@@ -46,6 +46,8 @@ module.exports = function PickTimes ({ state, prev, next }) {
   function shiftClosesAt (delta) {
     const newClosesAt = new Date(resolve(state.closesAt))
     newClosesAt.setHours(newClosesAt.getHours() + delta)
+    if (newClosesAt < new Date()) return
+
     state.closesAt.set(newClosesAt)
   }
 }

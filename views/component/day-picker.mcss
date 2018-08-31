@@ -22,6 +22,7 @@ ScryDayPicker {
 			border: none
 			cursor: pointer
 			font-size: 1.5rem
+      min-width: initial
 
 			:focus { outline: none }
 		}

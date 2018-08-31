@@ -49,8 +49,8 @@ function MonthTitle (monthIndex) {
   const MONTHS = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]
 
   return computed(monthIndex, mi => {
-    const view = new Date()
-    view.setMonth(mi)
+    const now = new Date()
+    const view = new Date(now.getFullYear(), mi, 1)
 
     return `${MONTHS[view.getMonth()]} ${view.getFullYear()}`
 
