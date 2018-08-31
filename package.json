@@ -36,6 +36,9 @@
     "electro": "^2.1.1",
     "electron": "^2.0.7",
     "micro-css": "^2.0.1",
+    "pull-stream": "^3.6.9",
+    "scuttle-testbot": "^1.1.6",
+    "ssb-backlinks": "^0.7.3",
     "standard": "^11.0.1"
   }
 }

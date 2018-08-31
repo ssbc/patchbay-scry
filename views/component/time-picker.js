@@ -1,4 +1,5 @@
 const { h, computed, Value, when } = require('mutant')
+const printTime = require('../../lib/print-time')
 
 module.exports = function TimePicker ({ times }) {
   return h('ScryTimePicker', [
@@ -62,16 +63,6 @@ function TimeEntry (t, times) {
     h('div.close', { 'ev-click': () => removeTime(t, times) }, '×')
     // h('i.fa.fa-close')
   ])
-}
-
-function printTime (date) {
-  var hours = date.getHours().toString()
-  while (hours.length < 2) hours = `0${hours}`
-
-  var minutes = date.getMinutes().toString()
-  while (minutes.length < 2) minutes = `0${minutes}`
-
-  return `${hours}:${minutes}`
 }
 
 function removeTime (t, times) {
