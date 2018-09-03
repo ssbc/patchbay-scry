@@ -30,7 +30,7 @@ const katie = sbot.createFeed()
 const piet = sbot.createFeed()
 
 const positions = [
-  { author: sbot, choices: [0, 1, 2, 3, 4, 5] },
+  // { author: sbot, choices: [0, 1, 2, 3, 4, 5] },
   { author: katie, choices: [0, 1, 2, 3] },
   { author: katie, choices: [0, 3] },
   { author: piet, choices: [3, 5] }
@@ -83,7 +83,8 @@ scuttle.poll.async.publishMeetingTime(opts, (err, poll) => {
 
 function render (poll) {
   const show = Show({
-    key: poll.key,
+    poll,
+    myFeedId: sbot.id,
     scuttle,
     name
   })
