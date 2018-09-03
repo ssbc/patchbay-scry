@@ -19,46 +19,64 @@ ScryShow {
     margin: 1rem 0
   }
 
-  div.results {
-    background: #fff
+  div.ScryShowResults {
+    margin-bottom: 1rem
+  }
 
-    overflow-x: auto
+  div.actions {
+    display: flex
+    justify-content: flex-end
+  }
+}
 
-    display: grid
-    grid-gap: 1px
-    justify-content: start
-    justify-items: stretch
+ScryShowResults {
+  background: #fff
+
+  overflow-x: auto
+
+  display: grid
+  grid-gap: 1px
+  justify-content: start
+  justify-items: stretch
+  align-items: center
+
+  div { padding: 5px }
+
+  div.ScryShowTime {
+    padding: 10px
+  }
+
+  div.name {
+    font-size: 14px
+    font-weight: 600
+    padding-left: 10px
+
+    display: flex
+    justify-content: space-between
     align-items: center
 
-    div { padding: 5px }
-
-    div.ScryShowTime {
-      padding: 10px
+    i {
+      margin: 0 .5rem
+      cursor: pointer
     }
+  }
 
-    div.name {
-      font-size: 14px
-      font-weight: 600
-      padding-left: 10px
+  div.position {
+    color: #fff
+    font-size: 20px
+    text-align: center
+    -yes {
+      background: hsla(172, 60%, 70%, 1)
     }
-
-    div.position {
-      color: #fff
-      font-size: 20px
-      text-align: center
-      -yes {
-        background: hsla(172, 60%, 70%, 1)
-      }
-      -no {
-        background: hsla(312, 60%, 70%, 1)
-        align-self: stretch
-      }
-      -edit {
-        color: hsla(312, 60%, 70%, 1)
-        font-wight: 600
-        cursor: pointer
-        align-self: stretch
-      }
+    -no {
+      background: hsla(312, 60%, 70%, 1)
+      align-self: stretch
+    }
+    -edit {
+      color: hsla(312, 60%, 70%, 1)
+      font-wight: 600
+      cursor: pointer
+      align-self: stretch
     }
   }
 }

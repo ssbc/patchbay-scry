@@ -1,9 +1,8 @@
 const nest = require('depnest')
 const { h } = require('mutant')
-// const Scuttle = require('scuttle-poll')
-const getContent = require('ssb-msg-content')
+const Scuttle = require('scuttle-poll')
 
-// const ScryShow = require('../../../views/show')
+const Show = require('../../../views/show')
 
 exports.gives = nest({
   'app.page.scryShow': true
@@ -11,9 +10,9 @@ exports.gives = nest({
 
 exports.needs = nest({
   // 'about.html.avatar': 'first',
-  // 'app.html.modal': 'first',
-  // 'app.sync.goTo': 'first',
-  // 'sbot.obs.connection': 'first'
+  'about.obs.name': 'first',
+  'keys.sync.id': 'first',
+  'sbot.obs.connection': 'first'
 })
 
 exports.create = function (api) {
@@ -21,13 +20,14 @@ exports.create = function (api) {
     'app.page.scryShow': scryShowPage
   })
 
-  function scryShowPage (location) {
-    // const scuttle = Scuttle(api.sbot.obs.connection)
-    const { title, details: { choices } } = getContent(location)
-
-    const page = h('Scry -show', { title: `/scry — ${title}` }, [
-      h('h1', title),
-      choices.map(c => h('div', c))
+  function scryShowPage (poll) {
+    const page = h('Scry -show', [
+      Show({
+        poll,
+        myFeedId: api.keys.sync.id(),
+        scuttle: Scuttle(api.sbot.obs.connection),
+        name: api.about.obs.name
+      })
     ])
 
     page.scroll = () => {} // stops keyboard shortcuts from breaking

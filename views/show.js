@@ -15,6 +15,8 @@ module.exports = function ScryShow (opts) {
     // avatar = ''
   } = opts
 
+  console.log(opts)
+
   const state = Struct(initialState())
   fetchState()
   watchForUpdates(fetchState)
@@ -25,8 +27,14 @@ module.exports = function ScryShow (opts) {
       'Closes at ',
       computed(state.now.closesAt, t => t ? t.toString() : '')
     ]),
-    ScryShowTable(),
-    computed([state.now, state.next], (current, next) => {
+    ScryShowResults(),
+    h('div.actions', [
+      PublishBtn()
+    ])
+  ])
+
+  function PublishBtn () {
+    return computed([state.now, state.next], (current, next) => {
       if (!next.isEditing) return
       if (next.isPublishing) return h('button', h('i.fa.fa-spin.fa-pulse'))
 
@@ -43,15 +51,16 @@ module.exports = function ScryShow (opts) {
             }, [])
 
             scuttle.position.async.publishMeetingTime({ poll, choices }, (err, data) => {
-              console.log(err, data)
+              if (err) throw err
+              console.log(data)
             })
           }
         }, 'Publish'
       )
     })
-  ])
+  }
 
-  function ScryShowTable () {
+  function ScryShowResults () {
     return computed(state.now, ({ title, closesAt, times, rows }) => {
       const style = {
         display: 'grid',
@@ -59,7 +68,7 @@ module.exports = function ScryShow (opts) {
       }
 
       return [
-        h('div.results', { style }, [
+        h('ScryShowResults', { style }, [
           times.map(ScryShowTime),
           rows.map(ScryShowRow)
         ])
@@ -78,8 +87,16 @@ module.exports = function ScryShow (opts) {
       ]
     }
 
+    const toggleEditing = () => {
+      const isEditing = !resolve(state.next.isEditing)
+      state.next.isEditing.set(isEditing)
+    }
+
     return [
-      h('div.name', name(author)),
+      h('div.name', [
+        name(author),
+        h('i.fa.fa-pencil', { 'ev-click': toggleEditing })
+      ]),
       computed(state.next, ({ isEditing, position }) => {
         if (isEditing) {
           return position.map((pos, i) => {
@@ -126,7 +143,7 @@ module.exports = function ScryShow (opts) {
         })
 
       const myRow = rows.find(r => r.author === myFeedId)
-      const myPosition = myRow ? myRow.position : Array(times.length).fill(false)
+      const myPosition = myRow ? myRow.position : Array(times.length).fill(null)
 
       var isEditing = false
       if (!myRow) {
@@ -155,7 +172,9 @@ module.exports = function ScryShow (opts) {
     pull(
       scuttle.poll.pull.updates(poll.key),
       pull.filter(m => !m.sync),
-      pull.drain(cb)
+      pull.drain(m => {
+        cb()
+      })
     )
   }
 }
