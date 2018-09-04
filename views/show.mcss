@@ -88,6 +88,16 @@ ScryShowResults {
       width: 20px
     }
   }
+
+  div.participants {
+    color: hsla(0, 0%, 50%, 1)
+    font-weight: 600
+  }
+  div.count {
+    color: hsla(0, 0%, 50%, 1)
+    font-weight: 600
+    text-align: center
+  }
 }
 
 ScryShowTime {

@@ -65,6 +65,7 @@ module.exports = function ScryShow (opts) {
       return [
         h('ScryShowResults', { style }, [
           times.map(ScryShowTime),
+          ScryShowSummary(rows),
           rows.map(ScryShowRow)
         ])
       ]
@@ -117,6 +118,26 @@ module.exports = function ScryShow (opts) {
           : h('div.position.-no')
         )
       })
+    ]
+  }
+
+  function ScryShowSummary (rows) {
+    if (!rows.length) return
+
+    const participants = rows.filter(r => r.position[0] !== null).length
+
+    const counts = rows[0].position.map((_, i) => {
+      return rows.reduce((acc, row) => {
+        if (row.position[i] === true) acc += 1
+        return acc
+      }, 0)
+    })
+    return [
+      h('div.participants', participants === 1
+        ? `${participants} participant`
+        : `${participants} participants`
+      ),
+      counts.map(n => h('div.count', `${n}${tick()}`))
     ]
   }
 
