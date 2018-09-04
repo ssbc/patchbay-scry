@@ -86,7 +86,8 @@ function render (poll) {
     poll,
     myFeedId: sbot.id,
     scuttle,
-    name
+    name,
+    testing: true
   })
 
   document.body.appendChild(show)

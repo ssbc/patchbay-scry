@@ -46,17 +46,25 @@ ScryShowResults {
     padding: 10px
   }
 
-  div.name {
+  div.about {
     font-size: 14px
     font-weight: 600
-    padding-left: 10px
+    padding: 0 8px 0 5px
 
-    display: flex
-    justify-content: space-between
+    display: grid
+    grid-template-columns: auto 1fr auto
+    grid-gap: 7px
+    align-content: center
     align-items: center
 
+    a { height: 30px }
+    (img) {
+      height: 30px
+      width: 30px
+    }
+
     i {
-      margin: 0 .5rem
+      justify-self: flex-end
       cursor: pointer
     }
   }
@@ -73,10 +81,11 @@ ScryShowResults {
       align-self: stretch
     }
     -edit {
+      text-align: initial
+      justify-self: center
       color: hsla(312, 60%, 70%, 1)
-      font-wight: 600
       cursor: pointer
-      align-self: stretch
+      width: 20px
     }
   }
 }

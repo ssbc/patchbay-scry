@@ -14,5 +14,10 @@ Scry -show {
 
   div.ScryShow {
     max-width: 80vw
+
+    div.ScryShowResults {
+      div.about {
+      }
+    }
   }
 }

@@ -9,7 +9,7 @@ exports.gives = nest({
 })
 
 exports.needs = nest({
-  // 'about.html.avatar': 'first',
+  'about.html.avatar': 'first',
   'about.obs.name': 'first',
   'keys.sync.id': 'first',
   'sbot.obs.connection': 'first'
@@ -26,7 +26,8 @@ exports.create = function (api) {
         poll,
         myFeedId: api.keys.sync.id(),
         scuttle: Scuttle(api.sbot.obs.connection),
-        name: api.about.obs.name
+        name: api.about.obs.name,
+        avatar: api.about.html.avatar
       })
     ])
 

@@ -2,20 +2,15 @@ const { h, Struct, computed, resolve } = require('mutant')
 const pull = require('pull-stream')
 const printTime = require('../lib/print-time')
 
-const YES = '✔'
-const EDIT_YES = '☑'
-const EDIT_NO = '☐'
-
 module.exports = function ScryShow (opts) {
   const {
     poll,
     myFeedId,
     scuttle,
-    name = k => k.slice(0, 9)
-    // avatar = ''
+    name = k => k.slice(0, 9),
+    avatar = k => h('img'),
+    testing = false
   } = opts
-
-  console.log(opts)
 
   const state = Struct(initialState())
   fetchState()
@@ -64,7 +59,7 @@ module.exports = function ScryShow (opts) {
     return computed(state.now, ({ title, closesAt, times, rows }) => {
       const style = {
         display: 'grid',
-        'grid-template-columns': `minmax(8rem, auto) repeat(${times.length}, 4rem)`
+        'grid-template-columns': `minmax(10rem, auto) repeat(${times.length}, 4rem)`
       }
 
       return [
@@ -79,9 +74,12 @@ module.exports = function ScryShow (opts) {
   function ScryShowRow ({ author, position }) {
     if (author !== myFeedId) {
       return [
-        h('div.name', name(author)),
+        h('div.about', [
+          avatar(author),
+          name(author)
+        ]),
         position.map(pos => pos
-          ? h('div.position.-yes', YES)
+          ? h('div.position.-yes', tick())
           : h('div.position.-no')
         )
       ]
@@ -93,11 +91,12 @@ module.exports = function ScryShow (opts) {
     }
 
     return [
-      h('div.name', [
+      h('div.about', [
+        avatar(author),
         name(author),
         h('i.fa.fa-pencil', { 'ev-click': toggleEditing })
       ]),
-      computed(state.next, ({ isEditing, position }) => {
+      computed([state.next, state.now.position], ({ isEditing, position }, currentPosition) => {
         if (isEditing) {
           return position.map((pos, i) => {
             return h('div.position.-edit',
@@ -108,13 +107,13 @@ module.exports = function ScryShow (opts) {
                   state.next.position.set(nextPosition)
                 }
               },
-              pos ? EDIT_YES : EDIT_NO
+              pos ? checkedBox() : uncheckedBox()
             )
           })
         }
 
-        return position.map(pos => pos
-          ? h('div.position.-yes', '✔')
+        return currentPosition.map(pos => pos
+          ? h('div.position.-yes', tick())
           : h('div.position.-no')
         )
       })
@@ -177,6 +176,10 @@ module.exports = function ScryShow (opts) {
       })
     )
   }
+
+  function tick () { return '✔' }
+  function checkedBox () { return testing ? '☑' : h('i.fa.fa-check-square-o') }
+  function uncheckedBox () { return testing ? '☐' : h('i.fa.fa-square-o') }
 }
 
 function initialState () {
