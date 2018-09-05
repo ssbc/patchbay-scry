@@ -30,6 +30,7 @@ module.exports = function ScryShow (opts) {
 
   function PublishBtn () {
     return computed([state.now, state.next], (current, next) => {
+      if (current.resolution) return
       if (!next.isEditing) return
       if (next.isPublishing) return h('button', h('i.fa.fa-spin.fa-pulse'))
 
@@ -56,24 +57,35 @@ module.exports = function ScryShow (opts) {
   }
 
   function ScryShowResults () {
-    return computed(state.now, ({ title, closesAt, times, rows }) => {
+    return computed(state.now, ({ title, closesAt, times, rows, resolution }) => {
       const style = {
         display: 'grid',
         'grid-template-columns': `minmax(10rem, auto) repeat(${times.length}, 4rem)`
       }
 
+      const getChosenClass = i => {
+        if (!resolution) return ''
+        return resolution.choices.includes(i) ? '-chosen' : '-not-chosen'
+      }
+
       return [
         h('ScryShowResults', { style }, [
-          times.map(ScryShowTime),
-          ScryShowSummary(rows),
-          rows.map(ScryShowRow)
+          ScryShowTimes(times, getChosenClass),
+          ScryShowResolution(times, resolution),
+          ScryShowSummary(rows, getChosenClass),
+          ScryShowPositions(rows)
         ])
       ]
     })
   }
 
-  function ScryShowRow ({ author, position }) {
-    if (author !== myFeedId) {
+  function ScryShowPositions (rows) {
+    return rows.map(({ author, position }) => {
+      if (author !== myFeedId) return OtherPosition(author, position)
+      else return MyPosition(position)
+    })
+
+    function OtherPosition (author, position) {
       return [
         h('div.about', [
           avatar(author),
@@ -86,19 +98,26 @@ module.exports = function ScryShow (opts) {
       ]
     }
 
-    const toggleEditing = () => {
-      const isEditing = !resolve(state.next.isEditing)
-      state.next.isEditing.set(isEditing)
-    }
+    function MyPosition (position) {
+      const toggleEditing = () => {
+        const isEditing = !resolve(state.next.isEditing)
+        state.next.isEditing.set(isEditing)
+      }
 
-    return [
-      h('div.about', [
-        avatar(author),
-        name(author),
-        h('i.fa.fa-pencil', { 'ev-click': toggleEditing })
-      ]),
-      computed([state.next, state.now.position], ({ isEditing, position }, currentPosition) => {
-        if (isEditing) {
+      return [
+        h('div.about', [
+          avatar(myFeedId),
+          name(myFeedId),
+          h('i.fa.fa-pencil', { 'ev-click': toggleEditing })
+        ]),
+        computed([state.next, state.now.position], ({ isEditing, position }, currentPosition) => {
+          if (!isEditing) {
+            return currentPosition.map(pos => pos
+              ? h('div.position.-yes', tick())
+              : h('div.position.-no')
+            )
+          }
+
           return position.map((pos, i) => {
             return h('div.position.-edit',
               {
@@ -111,17 +130,26 @@ module.exports = function ScryShow (opts) {
               pos ? checkedBox() : uncheckedBox()
             )
           })
-        }
-
-        return currentPosition.map(pos => pos
-          ? h('div.position.-yes', tick())
-          : h('div.position.-no')
-        )
-      })
-    ]
+        })
+      ]
+    }
   }
 
-  function ScryShowSummary (rows) {
+  function ScryShowResolution (times, resolution) {
+    if (!resolution) return
+
+    return times.map((_, i) => {
+      const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
+      const isChoice = resolution.choices.includes(i)
+      const className = isChoice ? '-chosen' : ''
+
+      return h('div.resolution', { style, className },
+        isChoice ? star() : ''
+      )
+    })
+  }
+
+  function ScryShowSummary (rows, getChosenClass) {
     if (!rows.length) return
 
     const participants = rows.filter(r => r.position[0] !== null).length
@@ -137,7 +165,11 @@ module.exports = function ScryShow (opts) {
         ? `${participants} participant`
         : `${participants} participants`
       ),
-      counts.map(n => h('div.count', `${n}${tick()}`))
+      counts.map((n, i) => {
+        return h('div.count', { className: getChosenClass(i) },
+          `${n}${tick()}`
+        )
+      })
     ]
   }
 
@@ -166,7 +198,7 @@ module.exports = function ScryShow (opts) {
       const myPosition = myRow ? myRow.position : Array(times.length).fill(null)
 
       var isEditing = false
-      if (!myRow) {
+      if (!myRow && !doc.resolution) {
         rows.push({ author: myFeedId, position: myPosition })
         isEditing = true
       }
@@ -176,6 +208,7 @@ module.exports = function ScryShow (opts) {
         closesAt,
         times,
         rows,
+        resolution: doc.resolution,
         position: myPosition
       })
       state.next.set({
@@ -201,6 +234,7 @@ module.exports = function ScryShow (opts) {
   function tick () { return '✔' }
   function checkedBox () { return testing ? '☑' : h('i.fa.fa-check-square-o') }
   function uncheckedBox () { return testing ? '☐' : h('i.fa.fa-square-o') }
+  function star () { return testing ? '★' : h('i.fa.fa-star') }
 }
 
 function initialState () {
@@ -209,6 +243,7 @@ function initialState () {
       title: '',
       times: [],
       closesAt: undefined,
+      resolution: undefined,
       rows: [],
       position: []
     }),
@@ -222,15 +257,17 @@ function initialState () {
 
 // component: show-time
 
-function ScryShowTime (time, i) {
-  const style = { 'grid-column': i + 2 }
+function ScryShowTimes (times, getChosenClass) {
+  return times.map((time, i) => {
+    const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
 
-  return h('ScryShowTime', { style }, [
-    h('div.month', month(time)),
-    h('div.date', time.getDate()),
-    h('div.day', day(time)),
-    h('div.time', printTime(time))
-  ])
+    return h('ScryShowTime', { style, className: getChosenClass(i) }, [
+      h('div.month', month(time)),
+      h('div.date', time.getDate()),
+      h('div.day', day(time)),
+      h('div.time', printTime(time))
+    ])
+  })
 }
 
 function month (date) {

@@ -57,25 +57,19 @@ scuttle.poll.async.publishMeetingTime(opts, (err, poll) => {
       else cb(new Error('not a valid meetingTime position', opts))
     }),
     pull.drain(
-      msg => console.log('yep'),
+      msg => console.log('position!'),
       (err) => {
         if (err) console.error(err)
         else render(poll)
 
-        // // confirm positions were published
-        // pull(
-        //   sbot.backlinks.read({
-        //     query: [{
-        //       $filter: { dest: poll.key }
-        //     }, {
-        //       $map: {
-        //         author: ['value', 'author'],
-        //         details: ['value', 'content', 'details']
-        //       }
-        //     }]
-        //   }),
-        //   pull.drain(m => console.log(JSON.stringify(m, null, 2)))
-        // )
+        const postResolution = () => {
+          scuttle.poll.async.publishResolution({
+            poll: poll,
+            choices: [3],
+            body: 'See you all there <3'
+          }, (err, data) => console.log('resolution:', err, data))
+        }
+        setTimeout(postResolution, 3e3)
       }
     )
   )

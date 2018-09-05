@@ -9,6 +9,8 @@ ScryShow {
   display: grid
   justify-content: start
 
+  --chosen-color: hsla(52, 100%, 80%, 1)
+
   h1 {
     font-size: 1.2rem
     margin: 0
@@ -93,10 +95,26 @@ ScryShowResults {
     color: hsla(0, 0%, 50%, 1)
     font-weight: 600
   }
+
   div.count {
-    color: hsla(0, 0%, 50%, 1)
+    color: hsla(312, 60%, 70%, 1)
     font-weight: 600
     text-align: center
+
+    -chosen {
+      background: var(--chosen-color)
+    }
+    -not-chosen { opacity: .5 }
+  }
+
+  div.resolution {
+    color: hsla(392, 100%, 50%, 1)
+    font-size: 20px
+    text-align: center
+
+    -chosen {
+      background: var(--chosen-color)
+    }
   }
 }
 
@@ -125,4 +143,9 @@ ScryShowTime {
 
     margin-top: 1rem
   }
+
+  -chosen {
+    background: var(--chosen-color) 
+  }
+  -not-chosen{ opacity: .5 }
 }
