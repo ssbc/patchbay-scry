@@ -16,14 +16,14 @@ const Show = require('./show')
 const opts = {
   title: 'Ziva\'s first Birthday Party',
   choices: [
-    time(2018, 10, 21, 10),
-    time(2018, 10, 21, 14),
-    time(2018, 10, 21, 16),
-    time(2018, 10, 22, 10),
-    time(2018, 10, 22, 14),
-    time(2018, 10, 22, 16)
+    time(2018, 9, 21, 10),
+    time(2018, 9, 21, 14),
+    time(2018, 9, 21, 16),
+    time(2018, 9, 22, 10),
+    time(2018, 9, 22, 14),
+    time(2018, 9, 22, 16)
   ],
-  closesAt: time(2018, 10, 1)
+  closesAt: time(2020, 9, 25)
 }
 
 const katie = sbot.createFeed()
