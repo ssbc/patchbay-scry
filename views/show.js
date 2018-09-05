@@ -18,10 +18,7 @@ module.exports = function ScryShow (opts) {
 
   return h('ScryShow', [
     h('h1', state.now.title),
-    h('div.closes-at', [
-      'Closes at ',
-      computed(state.now.closesAt, t => t ? t.toString() : '')
-    ]),
+    ScryShowClosesAt(state.now),
     ScryShowResults(),
     h('div.actions', [
       PublishBtn()
@@ -253,6 +250,20 @@ function initialState () {
       isPublishing: false
     })
   }
+}
+
+function ScryShowClosesAt ({ closesAt, resolution }) {
+  return h('div.closes-at', computed([closesAt, resolution], (t, resolution) => {
+    if (resolution) return
+    if (!t) return
+
+    const distance = t - new Date()
+    if (distance < 0) return 'This scry has closed, but a resolution has yet to be declared.'
+
+    const hours = Math.floor(distance / (60 * 60e3))
+    const days = Math.floor(hours / 24)
+    return `This scry closes in ${days} days, ${hours % 24} hours`
+  }))
 }
 
 // component: show-time

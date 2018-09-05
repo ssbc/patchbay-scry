@@ -23,7 +23,7 @@ const opts = {
     time(2018, 9, 22, 14),
     time(2018, 9, 22, 16)
   ],
-  closesAt: time(2020, 9, 25)
+  closesAt: threeDaysTime()
 }
 
 const katie = sbot.createFeed()
@@ -118,4 +118,9 @@ function name (feedId) {
 
 function time () {
   return new Date(...arguments).toISOString()
+}
+
+function threeDaysTime () {
+  const now = new Date()
+  return time(now.getFullYear(), now.getMonth(), now.getDate() + 3, 14)
 }
