@@ -77,7 +77,7 @@ module.exports = function ScryShow (opts) {
     }
 
     return computed([state.current, state.next, state.mode], (current, next, mode) => {
-      if (!isPlaceholder(current.resolution)) return
+      if (validResolution(current.resolution)) return
       if (!mode.isEditing) return
       if (mode.isPublishing) return h('button', h('i.fa.fa-spin.fa-pulse'))
       if (mode.isResolving) return
@@ -101,7 +101,7 @@ module.exports = function ScryShow (opts) {
       }
 
       const getChosenClass = i => {
-        if (isPlaceholder(resolution)) return ''
+        if (!validResolution(resolution)) return ''
         return resolution[i] ? '-chosen' : '-not-chosen'
       }
 
@@ -175,7 +175,7 @@ module.exports = function ScryShow (opts) {
 
   function ScryShowResolution (times, resolution) {
     return computed([state.mode.isResolving, state.next.resolution], (isResolving, nextResolution) => {
-      if (!isPlaceholder(resolution)) {
+      if (!isResolving && validResolution(resolution)) {
         return times.map((_, i) => {
           const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
           const isChoice = Boolean(resolution[i])
@@ -263,7 +263,7 @@ module.exports = function ScryShow (opts) {
       }
 
       var isEditing = false
-      if (!myRow && isPlaceholder(resolution)) {
+      if (!myRow && !validResolution(resolution)) {
         rows.push({ author: myFeedId, position: myPosition })
         isEditing = true
       }
@@ -329,8 +329,9 @@ function initialState () {
   }
 }
 
-function isPlaceholder (arr) {
-  return arr.every(el => el === null)
+function validResolution (arr) {
+  // valid as in not a dummy resolution that's a placeholder
+  return arr.every(el => el !== null)
 }
 
 // component
@@ -338,7 +339,7 @@ function isPlaceholder (arr) {
 function ScryShowClosesAt ({ closesAt, resolution }) {
   return h('div.closes-at', computed([closesAt, resolution], (t, resolution) => {
     if (!t) return
-    if (!isPlaceholder(resolution)) return
+    if (validResolution(resolution)) return
 
     const distance = t - new Date()
     if (distance < 0) return 'This scry has closed, but a resolution has yet to be declared.'
