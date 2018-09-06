@@ -1,6 +1,16 @@
 const { h, Struct, computed, resolve } = require('mutant')
 const pull = require('pull-stream')
-const printTime = require('../lib/print-time')
+
+const ShowTimes = require('./component/show-times')
+const ShowTotals = require('./component/show-totals')
+const ShowAuthorActions = require('./component/show-author-actions')
+
+// TODO
+// - [x] add mentions to the poll-resolution!
+//   - (later) add a message renderer for poll-resolution type messages
+//
+//  - [ ] review the logic, try for refactor
+//    - this is turning into a state-machine D;
 
 module.exports = function ScryShow (opts) {
   const {
@@ -12,55 +22,18 @@ module.exports = function ScryShow (opts) {
     testing = false
   } = opts
 
-  const state = Struct(initialState())
-  fetchState()
-  watchForUpdates(fetchState)
+  const state = LiveState({ scuttle, poll, myFeedId })
 
   return h('ScryShow', [
     h('h1', state.current.title),
-    ScryShowClosesAt(state.current),
-    AuthorActions(),
-    ScryShowResults(),
+    ShowClosesAt(state.current),
+    ShowAuthorActions({ poll, myFeedId, state, scuttle, name }),
+    ShowResults(),
     h('div.actions', [
       PublishBtn()
     ])
   ])
 
-  function AuthorActions () {
-    if (poll.value.author !== myFeedId) return
-
-    // TODO hide if already resolved ?
-
-    return h('div.author-actions', [
-      ResolveBtn(),
-      PublishResolveBtn()
-    ])
-
-    function ResolveBtn () {
-      const toggleResolving = () => {
-        const newState = !resolve(state.mode.isResolving)
-        state.mode.isResolving.set(newState)
-      }
-
-      return h('button', { 'ev-click': toggleResolving }, 'Resolve')
-    }
-
-    function PublishResolveBtn () {
-      const publish = () => {
-        const choices = resolve(state.next.resolution)
-          .reduce((acc, choice, i) => {
-            if (choice) acc.push(i)
-            return acc
-          }, [])
-        // const mentions = []
-        scuttle.poll.async.publishResolution({
-          poll: poll,
-          choices
-        }, (err, data) => console.log('resolution:', err, data))
-      }
-      return h('button', { 'ev-click': publish }, 'Publish Resolution')
-    }
-  }
 
   function PublishBtn () {
     const publish = () => {
@@ -93,7 +66,7 @@ module.exports = function ScryShow (opts) {
     })
   }
 
-  function ScryShowResults () {
+  function ShowResults () {
     return computed([state.current, state.next.resolution, state.mode], (current, nextResolution, { isResolving }) => {
       const { times, rows, resolution } = current
       const style = {
@@ -109,16 +82,16 @@ module.exports = function ScryShow (opts) {
 
       return [
         h('ScryShowResults', { style }, [
-          ScryShowTimes(times, getChosenClass),
-          ScryShowResolution(times, resolution),
-          ScryShowSummary(rows, getChosenClass),
-          ScryShowPositions(rows)
+          ShowTimes(times, getChosenClass),
+          ShowResolution(times, resolution),
+          ShowTotals(rows, tick, getChosenClass),
+          ShowPositions(rows)
         ])
       ]
     })
   }
 
-  function ScryShowPositions (rows) {
+  function ShowPositions (rows) {
     return rows.map(({ author, position }) => {
       if (author !== myFeedId) return OtherPosition(author, position)
       else return MyPosition(position)
@@ -175,7 +148,7 @@ module.exports = function ScryShow (opts) {
     }
   }
 
-  function ScryShowResolution (times, resolution) {
+  function ShowResolution (times, resolution) {
     return computed([state.mode.isResolving, state.next.resolution], (isResolving, nextResolution) => {
       if (!isResolving && validResolution(resolution)) {
         return times.map((_, i) => {
@@ -211,98 +184,6 @@ module.exports = function ScryShow (opts) {
     })
   }
 
-  function ScryShowSummary (rows, getChosenClass) {
-    if (!rows.length) return
-
-    const participants = rows.filter(r => r.position[0] !== null).length
-
-    const counts = rows[0].position.map((_, i) => {
-      return rows.reduce((acc, row) => {
-        if (row.position[i] === true) acc += 1
-        return acc
-      }, 0)
-    })
-    return [
-      h('div.participants', participants === 1
-        ? `${participants} participant`
-        : `${participants} participants`
-      ),
-      counts.map((n, i) => {
-        return h('div.count', { className: getChosenClass(i) },
-          `${n}${tick()}`
-        )
-      })
-    ]
-  }
-
-  function fetchState () {
-    scuttle.poll.async.get(poll.key, (err, doc) => {
-      if (err) return console.error(err)
-
-      const { title, closesAt, positions } = doc
-      const times = doc.results.map(result => result.choice)
-      const results = times.map(t => doc.results.find(result => result.choice === t))
-      // this ensures results Array is in same order as a times Array
-
-      const rows = positions
-        .reduce((acc, pos) => {
-          if (!acc.includes(pos.value.author)) acc.push(pos.value.author)
-          return acc
-        }, [])
-        .map(author => {
-          const position = times.map((time, i) => {
-            return results[i].voters.hasOwnProperty(author)
-          })
-          return { author, position }
-        })
-
-      const myRow = rows.find(r => r.author === myFeedId)
-      const myPosition = myRow ? myRow.position : Array(times.length).fill(null)
-
-      var resolution = Array(times.length).fill(null)
-      if (doc.resolution) {
-        resolution = resolution.map((_, i) => doc.resolution.choices.includes(i))
-      }
-      var nextResolution = resolution.map(el => el || false)
-
-      var isEditing = false
-      if (!myRow && !validResolution(resolution)) {
-        rows.push({ author: myFeedId, position: myPosition })
-        isEditing = true
-      }
-
-      state.current.set({
-        title,
-        closesAt,
-        times,
-        rows,
-        position: myPosition,
-        resolution
-      })
-      state.next.set({
-        position: Array.from(myPosition),
-        resolution: nextResolution
-      })
-      state.mode.set({
-        isEditing,
-        isPublishing: false,
-        isResolving: false
-      })
-    })
-  }
-
-  function watchForUpdates (cb) {
-    // TODO check if isEditing before calling cb
-    // start a loop to trigger cb after finished editing
-    pull(
-      scuttle.poll.pull.updates(poll.key),
-      pull.filter(m => !m.sync),
-      pull.drain(m => {
-        cb()
-      })
-    )
-  }
-
   function tick () { return '✔' }
   function checkedBox () { return testing ? '☑' : h('i.fa.fa-check-square-o') }
   function uncheckedBox () { return testing ? '☐' : h('i.fa.fa-square-o') }
@@ -310,8 +191,32 @@ module.exports = function ScryShow (opts) {
   function starEmpty () { return testing ? '☐' : h('i.fa.fa-star-o') }
 }
 
-function initialState () {
-  return {
+function validResolution (arr) {
+  // valid as in not a dummy resolution that's a placeholder
+  return arr.every(el => el !== null)
+}
+
+// component
+
+function ShowClosesAt ({ closesAt, resolution }) {
+  return h('div.closes-at', computed([closesAt, resolution], (t, resolution) => {
+    if (!t) return
+    if (validResolution(resolution)) return
+
+    const distance = t - new Date()
+    if (distance < 0) return 'This scry has closed, but a resolution has yet to be declared.'
+
+    const hours = Math.floor(distance / (60 * 60e3))
+    const days = Math.floor(hours / 24)
+    if (days === 0) return `This scry closes in ${hours % 24} hours`
+    return `This scry closes in ${days} days, ${hours % 24} hours`
+  }))
+}
+
+// lib/ helper?
+
+function LiveState ({ scuttle, poll, myFeedId }) {
+  const state = {
     current: Struct({
       title: '',
       times: [],
@@ -330,52 +235,76 @@ function initialState () {
       isResolving: false
     })
   }
+
+  fetchState({ scuttle, poll, myFeedId, state })
+
+  // TODO check if isEditing before calling cb
+  // start a loop to trigger cb after finished editing
+  pull(
+    scuttle.poll.pull.updates(poll.key),
+    pull.filter(m => !m.sync),
+    pull.drain(m => {
+      fetchState({ scuttle, poll, myFeedId, state })
+    })
+  )
+
+  return state
 }
 
-function validResolution (arr) {
-  // valid as in not a dummy resolution that's a placeholder
-  return arr.every(el => el !== null)
-}
+function fetchState ({ scuttle, poll, myFeedId, state }) {
+  scuttle.poll.async.get(poll.key, (err, doc) => {
+    if (err) return console.error(err)
 
-// component
+    const { title, closesAt, positions } = doc
+    const times = doc.results.map(result => result.choice)
+    const results = times.map(t => doc.results.find(result => result.choice === t))
+    // this ensures results Array is in same order as a times Array
 
-function ScryShowClosesAt ({ closesAt, resolution }) {
-  return h('div.closes-at', computed([closesAt, resolution], (t, resolution) => {
-    if (!t) return
-    if (validResolution(resolution)) return
+    const rows = positions
+      .reduce((acc, pos) => {
+        if (!acc.includes(pos.value.author)) acc.push(pos.value.author)
+        return acc
+      }, [])
+      .map(author => {
+        const position = times.map((time, i) => {
+          return results[i].voters.hasOwnProperty(author)
+        })
+        return { author, position }
+      })
+      // { author: feedId, position: [true, true, false, true, ...] }
 
-    const distance = t - new Date()
-    if (distance < 0) return 'This scry has closed, but a resolution has yet to be declared.'
+    const myRow = rows.find(r => r.author === myFeedId)
+    const myPosition = myRow ? myRow.position : Array(times.length).fill(null)
 
-    const hours = Math.floor(distance / (60 * 60e3))
-    const days = Math.floor(hours / 24)
-    return `This scry closes in ${days} days, ${hours % 24} hours`
-  }))
-}
+    var resolution = Array(times.length).fill(null)
+    if (doc.resolution) {
+      resolution = resolution.map((_, i) => doc.resolution.choices.includes(i))
+    }
+    var nextResolution = resolution.map(el => el || false)
+    // [ false, true, false, false, ... ] where true is a selected time column
 
-// component: show-time
+    var isEditing = false
+    if (!myRow && !validResolution(resolution) && closesAt > new Date()) {
+      rows.push({ author: myFeedId, position: myPosition })
+      isEditing = true
+    }
 
-function ScryShowTimes (times, getChosenClass) {
-  return times.map((time, i) => {
-    const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
-
-    return h('ScryShowTime', { style, className: getChosenClass(i) }, [
-      h('div.month', month(time)),
-      h('div.date', time.getDate()),
-      h('div.day', day(time)),
-      h('div.time', printTime(time))
-    ])
+    state.current.set({
+      title,
+      closesAt,
+      times,
+      rows,
+      position: myPosition,
+      resolution
+    })
+    state.next.set({
+      position: Array.from(myPosition),
+      resolution: nextResolution
+    })
+    state.mode.set({
+      isEditing,
+      isPublishing: false,
+      isResolving: false
+    })
   })
-}
-
-function month (date) {
-  const months = ['Jan', 'Feb', 'March', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
-
-  return months[date.getMonth()]
-}
-
-function day (date) {
-  const days = ['Sun', 'Mon', 'Tues', 'Wed', 'Thu', 'Fri', 'Sat']
-
-  return days[date.getDay()]
 }

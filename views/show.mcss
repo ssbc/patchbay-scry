@@ -10,6 +10,7 @@ ScryShow {
   justify-content: start
 
   --chosen-color: hsla(52, 100%, 80%, 1)
+  --chosen-color-lighter: hsla(52, 100%, 50%, .2)
 
   h1 {
     font-size: 1.2rem
@@ -22,7 +23,7 @@ ScryShow {
   }
 
   div.ScryShowResults {
-    margin-bottom: 1rem
+    margin: 1rem 0
   }
 
   div.actions {
@@ -107,7 +108,7 @@ ScryShowResults {
   }
 
   div.resolve-label {
-    background: var(--chosen-color)
+    background: var(--chosen-color-lighter)
     align-self: stretch
     display: flex
     align-items: center
@@ -117,45 +118,15 @@ ScryShowResults {
     font-size: 20px
     text-align: center
 
+    -highlighted {
+      cursor: pointer
+      background: var(--chosen-color-lighter)
+    }
+
     -chosen {
       background: var(--chosen-color)
     }
-
-    -highlighted {
-      cursor: pointer
-      background: var(--chosen-color)
-    }
   }
 }
 
-ScryShowTime {
-  display: grid
-  justify-content: center
-  justify-items: center
 
-  div.month {
-    color: hsla(0, 0%, 30%, 1)
-    font-size: 16px
-  }
-  div.date {
-    font-size: 26px
-    font-weight: 600
-  }
-  div.day {
-    color: hsla(0, 0%, 30%, 1)
-    font-size: 12px
-    font-weight: 600
-    text-transform: uppercase
-    letter-spacing: 1px
-  }
-  div.time {
-    font-size: 16px
-
-    margin-top: 1rem
-  }
-
-  -chosen {
-    background: var(--chosen-color) 
-  }
-  -not-chosen{ opacity: .5 }
-}

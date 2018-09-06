@@ -1,0 +1,11 @@
+ScryShowAuthorActions {
+  display: flex
+
+  button.resolve {
+    i.fa { margin-right: .5rem }
+  }
+
+  button.publish-resolution {
+    i.fa { margin-left: .5rem }
+  }
+}
