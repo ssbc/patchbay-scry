@@ -62,14 +62,15 @@ scuttle.poll.async.publishMeetingTime(opts, (err, poll) => {
         if (err) console.error(err)
         else render(poll)
 
-        const postResolution = () => {
-          scuttle.poll.async.publishResolution({
-            poll: poll,
-            choices: [3],
-            body: 'See you all there <3'
-          }, (err, data) => console.log('resolution:', err, data))
-        }
-        setTimeout(postResolution, 3e3)
+        // Auto-resolve
+        // const postResolution = () => {
+        //   scuttle.poll.async.publishResolution({
+        //     poll: poll,
+        //     choices: [3],
+        //     body: 'See you all there <3'
+        //   }, (err, data) => console.log('resolution:', err, data))
+        // }
+        // setTimeout(postResolution, 3e3)
       }
     )
   )

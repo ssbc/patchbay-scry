@@ -17,52 +17,92 @@ module.exports = function ScryShow (opts) {
   watchForUpdates(fetchState)
 
   return h('ScryShow', [
-    h('h1', state.now.title),
-    ScryShowClosesAt(state.now),
+    h('h1', state.current.title),
+    ScryShowClosesAt(state.current),
+    AuthorActions(),
     ScryShowResults(),
     h('div.actions', [
       PublishBtn()
     ])
   ])
 
-  function PublishBtn () {
-    return computed([state.now, state.next], (current, next) => {
-      if (current.resolution) return
-      if (!next.isEditing) return
-      if (next.isPublishing) return h('button', h('i.fa.fa-spin.fa-pulse'))
+  function AuthorActions () {
+    if (poll.value.author !== myFeedId) return
 
-      const newPosition = current.position.join() !== next.position.join()
+    // TODO hide if already resolved ?
+
+    return h('div.author-actions', [
+      ResolveBtn(),
+      PublishResolveBtn()
+    ])
+
+    function ResolveBtn () {
+      const toggleResolving = () => {
+        const newState = !resolve(state.mode.isResolving)
+        state.mode.isResolving.set(newState)
+      }
+
+      return h('button', { 'ev-click': toggleResolving }, 'Resolve')
+    }
+
+    function PublishResolveBtn () {
+      const publish = () => {
+        const choices = resolve(state.next.resolution)
+          .reduce((acc, choice, i) => {
+            if (choice) acc.push(i)
+            return acc
+          }, [])
+        // const mentions = []
+        scuttle.poll.async.publishResolution({
+          poll: poll,
+          choices
+        }, (err, data) => console.log('resolution:', err, data))
+      }
+      return h('button', { 'ev-click': publish }, 'Publish Resolution')
+    }
+  }
+
+  function PublishBtn () {
+    const publish = () => {
+      state.mode.isPublishing.set(true)
+      const choices = resolve(state.next.position).reduce((acc, el, i) => {
+        if (el) acc.push(i)
+        return acc
+      }, [])
+
+      scuttle.position.async.publishMeetingTime({ poll, choices }, (err, data) => {
+        if (err) throw err
+        console.log(data)
+      })
+    }
+
+    return computed([state.current, state.next, state.mode], (current, next, mode) => {
+      if (!isPlaceholder(current.resolution)) return
+      if (!mode.isEditing) return
+      if (mode.isPublishing) return h('button', h('i.fa.fa-spin.fa-pulse'))
+      if (mode.isResolving) return
+
+      const isNewPosition = current.position.join() !== next.position.join()
       return h('button',
         {
-          className: newPosition ? '-primary' : '',
-          disabled: !newPosition,
-          'ev-click': () => {
-            state.next.isPublishing.set(true)
-            const choices = next.position.reduce((acc, el, i) => {
-              if (el) acc.push(i)
-              return acc
-            }, [])
-
-            scuttle.position.async.publishMeetingTime({ poll, choices }, (err, data) => {
-              if (err) throw err
-              console.log(data)
-            })
-          }
+          className: isNewPosition ? '-primary' : '',
+          disabled: !isNewPosition,
+          'ev-click': publish
         }, 'Publish'
       )
     })
   }
 
   function ScryShowResults () {
-    return computed(state.now, ({ title, closesAt, times, rows, resolution }) => {
+    return computed(state.current, ({ title, closesAt, times, rows, resolution }) => {
       const style = {
         display: 'grid',
         'grid-template-columns': `minmax(10rem, auto) repeat(${times.length}, 4rem)`
       }
 
       const getChosenClass = i => {
-        if (!resolution) return ''
-        return resolution.choices.includes(i) ? '-chosen' : '-not-chosen'
+        if (isPlaceholder(resolution)) return ''
+        return resolution[i] ? '-chosen' : '-not-chosen'
       }
 
       return [
@@ -97,31 +137,32 @@ module.exports = function ScryShow (opts) {
 
     function MyPosition (position) {
       const toggleEditing = () => {
-        const isEditing = !resolve(state.next.isEditing)
-        state.next.isEditing.set(isEditing)
+        const newState = !resolve(state.mode.isEditing)
+        state.mode.isEditing.set(newState)
       }
 
+      // TODO disable pencil with resolution exists
       return [
         h('div.about', [
           avatar(myFeedId),
           name(myFeedId),
           h('i.fa.fa-pencil', { 'ev-click': toggleEditing })
         ]),
-        computed([state.next, state.now.position], ({ isEditing, position }, currentPosition) => {
+        computed([state.current.position, state.next.position, state.mode.isEditing], (position, nextPosition, isEditing) => {
           if (!isEditing) {
-            return currentPosition.map(pos => pos
+            return position.map(pos => pos
               ? h('div.position.-yes', tick())
               : h('div.position.-no')
             )
           }
 
-          return position.map((pos, i) => {
+          return nextPosition.map((pos, i) => {
             return h('div.position.-edit',
               {
                 'ev-click': () => {
-                  const nextPosition = resolve(state.next.position)
-                  nextPosition[i] = !pos
-                  state.next.position.set(nextPosition)
+                  const newState = resolve(nextPosition)
+                  newState[i] = !pos
+                  state.next.position.set(newState)
                 }
               },
               pos ? checkedBox() : uncheckedBox()
@@ -133,16 +174,38 @@ module.exports = function ScryShow (opts) {
   }
 
   function ScryShowResolution (times, resolution) {
-    if (!resolution) return
+    return computed([state.mode.isResolving, state.next.resolution], (isResolving, nextResolution) => {
+      if (!isPlaceholder(resolution)) {
+        return times.map((_, i) => {
+          const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
+          const isChoice = Boolean(resolution[i])
+          const className = isChoice ? '-chosen' : ''
 
-    return times.map((_, i) => {
-      const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
-      const isChoice = resolution.choices.includes(i)
-      const className = isChoice ? '-chosen' : ''
+          return h('div.resolution', { style, className },
+            isChoice ? star() : ''
+          )
+        })
+      }
 
-      return h('div.resolution', { style, className },
-        isChoice ? star() : ''
-      )
+      if (isResolving) {
+        const toggleChoice = (i) => {
+          const newState = Array.from(nextResolution)
+          newState[i] = !nextResolution[i]
+          state.next.resolution.set(newState)
+        }
+        return [
+          h('div.resolve-label', 'Final options'),
+          times.map((_, i) => {
+            const isChoice = Boolean(nextResolution[i])
+            const classList = [ '-highlighted', isChoice ? '-chosen' : '' ]
+
+            return h('div.resolution',
+              { classList, 'ev-click': () => toggleChoice(i) },
+              isChoice ? star() : starEmpty()
+            )
+          })
+        ]
+      }
     })
   }
 
@@ -194,24 +257,33 @@ module.exports = function ScryShow (opts) {
       const myRow = rows.find(r => r.author === myFeedId)
       const myPosition = myRow ? myRow.position : Array(times.length).fill(null)
 
+      var resolution = Array(times.length).fill(null)
+      if (doc.resolution) {
+        resolution = resolution.map((_, i) => doc.resolution.choices.includes(i))
+      }
+
       var isEditing = false
-      if (!myRow && !doc.resolution) {
+      if (!myRow && isPlaceholder(resolution)) {
         rows.push({ author: myFeedId, position: myPosition })
         isEditing = true
       }
 
-      state.now.set({
+      state.current.set({
         title,
         closesAt,
         times,
         rows,
-        resolution: doc.resolution,
-        position: myPosition
+        position: myPosition,
+        resolution
       })
       state.next.set({
         position: Array.from(myPosition),
+        resolution: Array.from(resolution)
+      })
+      state.mode.set({
         isEditing,
-        isPublishing: false
+        isPublishing: false,
+        isResolving: false
       })
     })
   }
@@ -232,30 +304,41 @@ module.exports = function ScryShow (opts) {
   function checkedBox () { return testing ? '☑' : h('i.fa.fa-check-square-o') }
   function uncheckedBox () { return testing ? '☐' : h('i.fa.fa-square-o') }
   function star () { return testing ? '★' : h('i.fa.fa-star') }
+  function starEmpty () { return testing ? '☐' : h('i.fa.fa-star-o') }
 }
 
 function initialState () {
   return {
-    now: Struct({
+    current: Struct({
       title: '',
       times: [],
       closesAt: undefined,
-      resolution: undefined,
       rows: [],
-      position: []
+      position: [],
+      resolution: []
     }),
     next: Struct({
       position: [],
+      resolution: []
+    }),
+    mode: Struct({
       isEditing: false,
-      isPublishing: false
+      isPublishing: false,
+      isResolving: false
     })
   }
 }
 
+function isPlaceholder (arr) {
+  return arr.every(el => el === null)
+}
+
+// component
+
 function ScryShowClosesAt ({ closesAt, resolution }) {
   return h('div.closes-at', computed([closesAt, resolution], (t, resolution) => {
-    if (resolution) return
     if (!t) return
+    if (!isPlaceholder(resolution)) return
 
     const distance = t - new Date()
     if (distance < 0) return 'This scry has closed, but a resolution has yet to be declared.'
