@@ -94,15 +94,17 @@ module.exports = function ScryShow (opts) {
   }
 
   function ScryShowResults () {
-    return computed(state.current, ({ title, closesAt, times, rows, resolution }) => {
+    return computed([state.current, state.next.resolution, state.mode], (current, nextResolution, { isResolving }) => {
+      const { times, rows, resolution } = current
       const style = {
         display: 'grid',
         'grid-template-columns': `minmax(10rem, auto) repeat(${times.length}, 4rem)`
       }
 
       const getChosenClass = i => {
-        if (!validResolution(resolution)) return ''
-        return resolution[i] ? '-chosen' : '-not-chosen'
+        const relevant = isResolving ? nextResolution : resolution
+        if (!validResolution(relevant)) return ''
+        return relevant[i] ? '-chosen' : '-not-chosen'
       }
 
       return [
@@ -261,6 +263,7 @@ module.exports = function ScryShow (opts) {
       if (doc.resolution) {
         resolution = resolution.map((_, i) => doc.resolution.choices.includes(i))
       }
+      var nextResolution = resolution.map(el => el || false)
 
       var isEditing = false
       if (!myRow && !validResolution(resolution)) {
@@ -278,7 +281,7 @@ module.exports = function ScryShow (opts) {
       })
       state.next.set({
         position: Array.from(myPosition),
-        resolution: Array.from(resolution)
+        resolution: nextResolution
       })
       state.mode.set({
         isEditing,
