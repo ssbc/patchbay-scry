@@ -30,7 +30,7 @@
     "marama": "^1.2.2",
     "mutant": "^3.22.1",
     "read-directory": "^3.0.0",
-    "scuttle-poll": "^1.4.0"
+    "scuttle-poll": "^1.4.1"
   },
   "devDependencies": {
     "electro": "^2.1.1",

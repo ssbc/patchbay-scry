@@ -23,7 +23,7 @@ module.exports = function ShowAuthorActions ({ poll, myFeedId, state, scuttle, n
   function PublishResolveBtn () {
     return computed(state.mode, ({ isResolving, isPublishing }) => {
       if (!isResolving) return
-      if (isPublishing) return
+      if (isPublishing) return h('button', h('i.fa.fa-spinner.fa-pulse'))
 
       const publish = () => {
         state.mode.isPublishing.set(true)
@@ -41,7 +41,10 @@ module.exports = function ShowAuthorActions ({ poll, myFeedId, state, scuttle, n
 
         scuttle.poll.async.publishResolution(
           { poll, choices, mentions },
-          (err, data) => console.log('resolution:', err, data)
+          (err, data) => {
+            debugger
+            console.log('resolution:', err, data)
+          }
         )
       }
       return h('button.publish-resolution', { 'ev-click': publish }, [

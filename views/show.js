@@ -34,7 +34,6 @@ module.exports = function ScryShow (opts) {
     ])
   ])
 
-
   function PublishBtn () {
     const publish = () => {
       state.mode.isPublishing.set(true)
@@ -238,10 +237,9 @@ function LiveState ({ scuttle, poll, myFeedId }) {
 
   fetchState({ scuttle, poll, myFeedId, state })
 
-  // TODO check if isEditing before calling cb
-  // start a loop to trigger cb after finished editing
+  // TODO check if isEditing before re-fetching state
   pull(
-    scuttle.poll.pull.updates(poll.key),
+    scuttle.poll.pull.updates(poll.key || poll),
     pull.filter(m => !m.sync),
     pull.drain(m => {
       fetchState({ scuttle, poll, myFeedId, state })
