@@ -5,6 +5,7 @@ const Scuttle = require('scuttle-poll')
 const ScryNew = require('../../../views/new')
 
 exports.gives = nest({
+  'app.html.menuItem': true,
   'app.page.scryNew': true
 })
 
@@ -17,8 +18,15 @@ exports.needs = nest({
 
 exports.create = function (api) {
   return nest({
+    'app.html.menuItem': menuItem,
     'app.page.scryNew': scryNewPage
   })
+
+  function menuItem () {
+    return h('a', {
+      'ev-click': () => api.app.sync.goTo('/scry/new')
+    }, '/scry/new')
+  }
 
   function scryNewPage (location) {
     const scuttle = Scuttle(api.sbot.obs.connection)

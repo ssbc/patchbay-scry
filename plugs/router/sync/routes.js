@@ -12,6 +12,7 @@ exports.create = (api) => {
     const pages = api.app.page
 
     const routes = [
+      [ loc => loc.page === 'scry/new', pages.scryNew ],
       [ loc => loc.page === 'scry-new', pages.scryNew ],
       [ loc => isPoll.meetingTime(loc), pages.scryShow ]
     ]

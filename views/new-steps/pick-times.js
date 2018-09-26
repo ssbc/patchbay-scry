@@ -40,7 +40,7 @@ module.exports = function PickTimes ({ state, prev, next }) {
   ])
 }
 
-// functions
+// helpers
 
 function getTimezone () {
   try {
