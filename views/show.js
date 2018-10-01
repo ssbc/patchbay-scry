@@ -8,9 +8,8 @@ const ShowAuthorActions = require('./component/show-author-actions')
 // TODO
 // - [x] add mentions to the poll-resolution!
 //   - (later) add a message renderer for poll-resolution type messages
-//
-//  - [ ] review the logic, try for refactor
-//    - this is turning into a state-machine D;
+// - [ ] review the logic, try for refactor
+//   - this is turning into a state-machine D;
 
 module.exports = function ScryShow (opts) {
   const {
@@ -19,6 +18,7 @@ module.exports = function ScryShow (opts) {
     scuttle,
     name = k => k.slice(0, 9),
     avatar = k => h('img'),
+    NewGathering,
     testing = false
   } = opts
 
@@ -27,7 +27,7 @@ module.exports = function ScryShow (opts) {
   return h('ScryShow', [
     h('h1', state.current.title),
     ShowClosesAt(state.current),
-    ShowAuthorActions({ poll, myFeedId, state, scuttle, name }),
+    ShowAuthorActions({ poll, myFeedId, state, scuttle, name, NewGathering }),
     ShowResults(),
     h('div.actions', [
       PublishBtn()
@@ -217,12 +217,14 @@ function ShowClosesAt ({ closesAt, resolution }) {
 function LiveState ({ scuttle, poll, myFeedId }) {
   const state = {
     current: Struct({
+      keu: '',
       title: '',
       times: [],
       closesAt: undefined,
       rows: [],
       position: [],
-      resolution: []
+      resolution: [],
+      backlinks: []
     }),
     next: Struct({
       position: [],
@@ -238,6 +240,7 @@ function LiveState ({ scuttle, poll, myFeedId }) {
   fetchState({ scuttle, poll, myFeedId, state })
 
   // TODO check if isEditing before re-fetching state
+  // TODO factor out updateStream (see about.pull.updates pattern)
   pull(
     scuttle.poll.pull.updates(poll.key || poll),
     pull.filter(m => !m.sync),
@@ -253,7 +256,7 @@ function fetchState ({ scuttle, poll, myFeedId, state }) {
   scuttle.poll.async.get(poll.key, (err, doc) => {
     if (err) return console.error(err)
 
-    const { title, closesAt, positions } = doc
+    const { title, closesAt, positions, backlinks } = doc
     const times = doc.results.map(result => result.choice)
     const results = times.map(t => doc.results.find(result => result.choice === t))
     // this ensures results Array is in same order as a times Array
@@ -288,12 +291,14 @@ function fetchState ({ scuttle, poll, myFeedId, state }) {
     }
 
     state.current.set({
+      key: poll.key,
       title,
       closesAt,
       times,
       rows,
       position: myPosition,
-      resolution
+      resolution,
+      backlinks
     })
     state.next.set({
       position: Array.from(myPosition),

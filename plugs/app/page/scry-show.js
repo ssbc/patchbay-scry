@@ -6,32 +6,39 @@ const getContent = require('ssb-msg-content')
 const Show = require('../../../views/show')
 
 exports.gives = nest({
-  'app.page.scryShow': true
+  'app.page.scryShow': true,
+  'gathering.sync.launchModal': true // dummy entry
 })
 
 exports.needs = nest({
   'about.html.avatar': 'first',
   'about.obs.name': 'first',
+  'gathering.sync.launchModal': 'first',
   'keys.sync.id': 'first',
   'sbot.obs.connection': 'first'
 })
 
 exports.create = function (api) {
   return nest({
-    'app.page.scryShow': scryShowPage
+    'app.page.scryShow': scryShowPage,
+    'gathering.sync.launchModal': () => {}
   })
 
   function scryShowPage (poll) {
+    const gatheringModal = ''
+
     const scry = Show({
       poll,
       myFeedId: api.keys.sync.id(),
       scuttle: Scuttle(api.sbot.obs.connection),
       name: api.about.obs.name,
-      avatar: api.about.html.avatar
+      avatar: api.about.html.avatar,
+      NewGathering: api.gathering.sync.launchModal
     })
     scry.title = ''
 
     const page = h('Scry -show', [
+      gatheringModal,
       scry
     ])
     page.title = getContent(poll).title
