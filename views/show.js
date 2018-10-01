@@ -1,9 +1,10 @@
 const { h, Struct, computed, resolve } = require('mutant')
 const pull = require('pull-stream')
+const { isGathering } = require('ssb-gathering-schema')
+const getContent = require('ssb-msg-content')
 
-const ShowTimes = require('./component/show-times')
-const ShowTotals = require('./component/show-totals')
 const ShowAuthorActions = require('./component/show-author-actions')
+const ShowResults = require('./component/show-results')
 
 // TODO
 // - [x] add mentions to the poll-resolution!
@@ -23,12 +24,14 @@ module.exports = function ScryShow (opts) {
   } = opts
 
   const state = LiveState({ scuttle, poll, myFeedId })
+  const symbols = getSymbols(testing)
 
   return h('ScryShow', [
     h('h1', state.current.title),
     ShowClosesAt(state.current),
+    ShowGathering(state.current.gathering),
     ShowAuthorActions({ poll, myFeedId, state, scuttle, name, NewGathering }),
-    ShowResults(),
+    ShowResults({ state, myFeedId, name, avatar, symbols }),
     h('div.actions', [
       PublishBtn()
     ])
@@ -64,130 +67,6 @@ module.exports = function ScryShow (opts) {
       )
     })
   }
-
-  function ShowResults () {
-    return computed([state.current, state.next.resolution, state.mode], (current, nextResolution, { isResolving }) => {
-      const { times, rows, resolution } = current
-      const style = {
-        display: 'grid',
-        'grid-template-columns': `minmax(10rem, auto) repeat(${times.length}, 4rem)`
-      }
-
-      const getChosenClass = i => {
-        const relevant = isResolving ? nextResolution : resolution
-        if (!validResolution(relevant)) return ''
-        return relevant[i] ? '-chosen' : '-not-chosen'
-      }
-
-      return [
-        h('ScryShowResults', { style }, [
-          ShowTimes(times, getChosenClass),
-          ShowResolution(times, resolution),
-          ShowTotals(rows, tick, getChosenClass),
-          ShowPositions(rows)
-        ])
-      ]
-    })
-  }
-
-  function ShowPositions (rows) {
-    return rows.map(({ author, position }) => {
-      if (author !== myFeedId) return OtherPosition(author, position)
-      else return MyPosition(position)
-    })
-
-    function OtherPosition (author, position) {
-      return [
-        h('div.about', [
-          avatar(author),
-          name(author)
-        ]),
-        position.map(pos => pos
-          ? h('div.position.-yes', tick())
-          : h('div.position.-no')
-        )
-      ]
-    }
-
-    function MyPosition (position) {
-      const toggleEditing = () => {
-        const newState = !resolve(state.mode.isEditing)
-        state.mode.isEditing.set(newState)
-      }
-
-      // TODO disable pencil with resolution exists
-      return [
-        h('div.about', [
-          avatar(myFeedId),
-          name(myFeedId),
-          h('i.fa.fa-pencil', { 'ev-click': toggleEditing })
-        ]),
-        computed([state.current.position, state.next.position, state.mode.isEditing], (position, nextPosition, isEditing) => {
-          if (!isEditing) {
-            return position.map(pos => pos
-              ? h('div.position.-yes', tick())
-              : h('div.position.-no')
-            )
-          }
-
-          return nextPosition.map((pos, i) => {
-            return h('div.position.-edit',
-              {
-                'ev-click': () => {
-                  const newState = resolve(nextPosition)
-                  newState[i] = !pos
-                  state.next.position.set(newState)
-                }
-              },
-              pos ? checkedBox() : uncheckedBox()
-            )
-          })
-        })
-      ]
-    }
-  }
-
-  function ShowResolution (times, resolution) {
-    return computed([state.mode.isResolving, state.next.resolution], (isResolving, nextResolution) => {
-      if (!isResolving && validResolution(resolution)) {
-        return times.map((_, i) => {
-          const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
-          const isChoice = Boolean(resolution[i])
-          const className = isChoice ? '-chosen' : ''
-
-          return h('div.resolution', { style, className },
-            isChoice ? star() : ''
-          )
-        })
-      }
-
-      if (isResolving) {
-        const toggleChoice = (i) => {
-          const newState = Array.from(nextResolution)
-          newState[i] = !nextResolution[i]
-          state.next.resolution.set(newState)
-        }
-        return [
-          h('div.resolve-label', 'Final options'),
-          times.map((_, i) => {
-            const isChoice = Boolean(nextResolution[i])
-            const classList = [ '-highlighted', isChoice ? '-chosen' : '' ]
-
-            return h('div.resolution',
-              { classList, 'ev-click': () => toggleChoice(i) },
-              isChoice ? star() : starEmpty()
-            )
-          })
-        ]
-      }
-    })
-  }
-
-  function tick () { return '✔' }
-  function checkedBox () { return testing ? '☑' : h('i.fa.fa-check-square-o') }
-  function uncheckedBox () { return testing ? '☐' : h('i.fa.fa-square-o') }
-  function star () { return testing ? '★' : h('i.fa.fa-star') }
-  function starEmpty () { return testing ? '☐' : h('i.fa.fa-star-o') }
 }
 
 function validResolution (arr) {
@@ -197,10 +76,11 @@ function validResolution (arr) {
 
 // component
 
-function ShowClosesAt ({ closesAt, resolution }) {
-  return h('div.closes-at', computed([closesAt, resolution], (t, resolution) => {
-    if (!t) return
+function ShowClosesAt ({ closesAt, resolution, gathering }) {
+  return h('div.closes-at', computed([closesAt, resolution, gathering], (t, resolution, gathering) => {
+    if (gathering) return
     if (validResolution(resolution)) return
+    if (!t) return
 
     const distance = t - new Date()
     if (distance < 0) return 'This scry has closed, but a resolution has yet to be declared.'
@@ -210,6 +90,19 @@ function ShowClosesAt ({ closesAt, resolution }) {
     if (days === 0) return `This scry closes in ${hours % 24} hours`
     return `This scry closes in ${days} days, ${hours % 24} hours`
   }))
+}
+
+function ShowGathering (gathering) {
+  return computed(gathering, gathering => {
+    if (!gathering) return
+
+    return h('ScryShowGathering', [
+      h('a.gathering', // TODO not very general!
+        { href: gathering.key },
+        [ h('i.fa.fa-calendar'), 'Gathering: ', gathering.key.slice(0, 9), '...' ]
+      )
+    ])
+  })
 }
 
 // lib/ helper?
@@ -224,6 +117,7 @@ function LiveState ({ scuttle, poll, myFeedId }) {
       rows: [],
       position: [],
       resolution: [],
+      gathering: undefined,
       backlinks: []
     }),
     next: Struct({
@@ -261,26 +155,12 @@ function fetchState ({ scuttle, poll, myFeedId, state }) {
     const results = times.map(t => doc.results.find(result => result.choice === t))
     // this ensures results Array is in same order as a times Array
 
-    const rows = positions
-      .reduce((acc, pos) => {
-        if (!acc.includes(pos.value.author)) acc.push(pos.value.author)
-        return acc
-      }, [])
-      .map(author => {
-        const position = times.map((time, i) => {
-          return results[i].voters.hasOwnProperty(author)
-        })
-        return { author, position }
-      })
-      // { author: feedId, position: [true, true, false, true, ...] }
-
+    const rows = buildRows({ positions, results, times })
+    // Array with entries  { author: feedId, position: [true, true, false, true, ...] }
     const myRow = rows.find(r => r.author === myFeedId)
     const myPosition = myRow ? myRow.position : Array(times.length).fill(null)
 
-    var resolution = Array(times.length).fill(null)
-    if (doc.resolution) {
-      resolution = resolution.map((_, i) => doc.resolution.choices.includes(i))
-    }
+    const resolution = buildResolution({ resolution: doc.resolution, times })
     var nextResolution = resolution.map(el => el || false)
     // [ false, true, false, false, ... ] where true is a selected time column
 
@@ -298,7 +178,7 @@ function fetchState ({ scuttle, poll, myFeedId, state }) {
       rows,
       position: myPosition,
       resolution,
-      backlinks
+      gathering: findGathering(backlinks, poll)
     })
     state.next.set({
       position: Array.from(myPosition),
@@ -310,4 +190,51 @@ function fetchState ({ scuttle, poll, myFeedId, state }) {
       isResolving: false
     })
   })
+}
+
+function buildRows ({ positions, times, results }) {
+  return positions
+    .reduce((acc, pos) => {
+      if (!acc.includes(pos.value.author)) acc.push(pos.value.author)
+      return acc
+    }, [])
+    .map(author => {
+      const position = times.map((time, i) => {
+        return results[i].voters.hasOwnProperty(author)
+      })
+      return { author, position }
+    })
+}
+
+function buildResolution ({ resolution: res, times }) {
+  var resolution = Array(times.length).fill(null)
+
+  if (res) {
+    resolution = resolution.map((_, i) => res.choices.includes(i))
+  }
+  return resolution
+}
+
+function findGathering (backlinks, poll) {
+  return backlinks
+    .filter(isGathering)
+    .find(m => getContent(m).progenitor === poll.key)
+}
+
+function getSymbols (testing) {
+  return testing
+    ? {
+      tick: () => '✔',
+      checkedBox: () => '☑',
+      uncheckedBox: () => '☐',
+      star: () => '★',
+      starEmpty: () => '☐'
+    }
+    : {
+      tick: () => '✔',
+      checkedBox: () => h('i.fa.fa-check-square-o'),
+      uncheckedBox: () => h('i.fa.fa-square-o'),
+      star: () => h('i.fa.fa-star'),
+      starEmpty: () => h('i.fa.fa-star-o')
+    }
 }

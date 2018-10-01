@@ -1,7 +1,7 @@
 const { h } = require('mutant')
 const printTime = require('../../lib/print-time')
 
-module.exports = function ScryShowTimes (times, getChosenClass) {
+module.exports = function ScryShowTimes ({ times, getChosenClass }) {
   return times.map((time, i) => {
     const style = { 'grid-column': i + 2 } // grid-columns start at 1 D:
 

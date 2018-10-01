@@ -17,6 +17,11 @@ ScryShowAuthorActions {
   div.new-gathering {
     // NOTE - this is for the case that patchbay-gatherings is injecting a module
     // TODO - ideally patchbay-gatherings would inject its own styles?
+
+    button {
+      i.fa { margin-left: .5rem }
+    }
+
     div.Modal {
       div.content {
         --gradient: linear-gradient(45deg, hsla(0, 100%, 56%, .5), hsla(220, 100%, 46%, 0.3))

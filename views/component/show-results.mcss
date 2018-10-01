@@ -1,0 +1,96 @@
+ScryShowResults {
+  background: #fff
+
+  overflow-x: auto
+
+  display: grid
+  grid-gap: 1px
+  justify-content: start
+  justify-items: stretch
+  align-items: center
+
+  div { padding: 5px }
+
+  div.ScryShowTime {
+    padding: 10px
+  }
+
+  div.about {
+    font-size: 14px
+    font-weight: 600
+    padding: 0 8px 0 5px
+
+    display: grid
+    grid-template-columns: auto 1fr auto
+    grid-gap: 7px
+    align-content: center
+    align-items: center
+
+    a { height: 30px }
+    (img) {
+      height: 30px
+      width: 30px
+    }
+
+    i {
+      justify-self: flex-end
+      cursor: pointer
+    }
+  }
+
+  div.position {
+    color: #fff
+    font-size: 20px
+    text-align: center
+    -yes {
+      background: hsla(172, 60%, 70%, 1)
+    }
+    -no {
+      background: hsla(312, 60%, 70%, 1)
+      align-self: stretch
+    }
+    -edit {
+      text-align: initial
+      justify-self: center
+      color: hsla(312, 60%, 70%, 1)
+      cursor: pointer
+      width: 20px
+    }
+  }
+
+  div.participants {
+    color: hsla(0, 0%, 50%, 1)
+    font-weight: 600
+  }
+  div.count {
+    color: hsla(312, 60%, 70%, 1)
+    font-weight: 600
+    text-align: center
+
+    -chosen {
+      background: var(--chosen-color)
+    }
+    -not-chosen { opacity: .5 }
+  }
+
+  div.resolve-label {
+    background: var(--chosen-color-lighter)
+    align-self: stretch
+    display: flex
+    align-items: center
+  }
+  div.resolution {
+    color: hsla(392, 100%, 50%, 1)
+    font-size: 20px
+    text-align: center
+
+    -highlighted {
+      cursor: pointer
+      background: var(--chosen-color-lighter)
+    }
+
+    -chosen {
+      background: var(--chosen-color)
+    }
+  }
+}

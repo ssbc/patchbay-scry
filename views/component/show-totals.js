@@ -3,7 +3,7 @@ const { h } = require('mutant')
 // Note this doesn't feel like a standalone component so much
 // but it is a bit of junk code it was easy to isolate
 
-module.exports = function ShowTotals (rows, tick, getChosenClass) {
+module.exports = function ShowTotals ({ rows, symbols, getChosenClass }) {
   if (!rows.length) return
 
   const participants = rows.filter(r => r.position[0] !== null).length
@@ -21,7 +21,7 @@ module.exports = function ShowTotals (rows, tick, getChosenClass) {
     ),
     counts.map((n, i) => {
       return h('div.count', { className: getChosenClass(i) },
-        `${n}${tick()}`
+        `${n}${symbols.tick()}`
       )
     })
   ]
