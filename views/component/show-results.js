@@ -73,7 +73,7 @@ function ShowPositions ({ state, rows, myFeedId, symbols, name, avatar }) {
   function OtherPosition (author, position) {
     return [
       h('div.about', [
-        avatar(author),
+        avatar(author, '30px'),
         name(author)
       ]),
       position.map(pos => pos
@@ -92,7 +92,7 @@ function ShowPositions ({ state, rows, myFeedId, symbols, name, avatar }) {
     // TODO disable pencil with resolution exists
     return [
       h('div.about', [
-        avatar(myFeedId),
+        avatar(myFeedId, '30px'),
         name(myFeedId),
         h('i.fa.fa-pencil', { 'ev-click': toggleEditing })
       ]),

@@ -26,7 +26,10 @@ ScryShowResults {
     align-content: center
     align-items: center
 
-    a { height: 30px }
+    a {
+      height: 30px
+      width: 30px
+    }
     (img) {
       height: 30px
       width: 30px
