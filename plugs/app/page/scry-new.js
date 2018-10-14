@@ -13,7 +13,10 @@ exports.needs = nest({
   // 'about.html.avatar': 'first',
   // 'app.html.modal': 'first',
   'app.sync.goTo': 'first',
-  'sbot.obs.connection': 'first'
+  'sbot.obs.connection': 'first',
+  'about.async.suggest': 'first',
+  'about.html.avatar': 'first',
+  'keys.sync.id': 'first'
 })
 
 exports.create = function (api) {
@@ -34,7 +37,10 @@ exports.create = function (api) {
     const page = h('Scry -new', { title: '/scry/new' }, [
       ScryNew({
         scuttle,
-        afterPublish: (msg) => api.app.sync.goTo(msg)
+        afterPublish: (msg) => api.app.sync.goTo(msg),
+        myKey: api.keys.sync.id(),
+        avatar: api.about.html.avatar,
+        suggest: { about: api.about.async.suggest }
       })
     ])
 

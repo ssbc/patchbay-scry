@@ -1,20 +1,26 @@
 const { h, Struct, Array: MutantArray, computed, resolve } = require('mutant')
 const Invoke = require('./new-steps/invoke')
 const PickTimes = require('./new-steps/pick-times')
+const AddMentions = require('./new-steps/add-mentions')
 
 module.exports = function ScryNew (opts) {
   const {
     scuttle,
-    afterPublish = () => console.log('published scry poll')
+    afterPublish = () => console.log('published scry poll'),
+    myKey,
+    avatar,
+    suggest
   } = opts
 
   const initialState = {
     step: 0,
     title: '',
+    description: '',
     closesAt: getInitialClosesAt(),
     monthIndex: new Date().getMonth(),
     days: MutantArray([]),
-    times: MutantArray([])
+    times: MutantArray([]),
+    recps: MutantArray([])
   }
   const state = Struct(initialState)
 
@@ -27,6 +33,14 @@ module.exports = function ScryNew (opts) {
         })
         case 1: return PickTimes({
           state,
+          prev: () => state.step.set(step - 1),
+          next: () => state.step.set(step + 1)
+        })
+        case 2: return AddMentions({
+          state,
+          myKey,
+          avatar,
+          suggest,
           prev: () => state.step.set(step - 1),
           next: publish
         })
