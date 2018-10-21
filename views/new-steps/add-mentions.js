@@ -2,8 +2,8 @@ const { h, computed } = require('mutant')
 const Recipients = require('../component/recipients')
 
 module.exports = function AddMentions ({ state, prev, next, myKey, suggest, avatar }) {
-  const nextBtn = computed(state, ({ description }) => {
-    var opts = (!description)
+  const nextBtn = computed(state, ({ body }) => {
+    var opts = (!body)
       ? { disabled: 'disabled' }
       : { className: '-primary', 'ev-click': next }
 
@@ -17,10 +17,10 @@ module.exports = function AddMentions ({ state, prev, next, myKey, suggest, avat
         {
           placeholder: '',
           'ev-input': ev => {
-            state.description.set(ev.target.value)
+            state.body.set(ev.target.value)
           }
         },
-        state.description
+        state.body
       ),
       h('label', 'Recipients'),
       Recipients({ state, myKey, suggest, avatar })

@@ -14,7 +14,7 @@ function Recipients (opts) {
   } = opts
 
   return h('GatheringRecipients', [
-    map(state.recps, recp => Recipient({ recp, avatar })),
+    map(state.mentions, recp => Recipient({ recp, avatar })),
     RecipientInput({ state, myKey, suggest, i18n })
   ])
 }
@@ -35,7 +35,7 @@ function Recipient ({ recp, avatar }) {
 }
 
 function RecipientInput ({ state, myKey, suggest, i18n }) {
-  const { recps } = state
+  const { mentions } = state
 
   const input = h('input.hidden', {
     placeholder: i18n('gathering.action.addMoreRecps')
@@ -48,9 +48,9 @@ function RecipientInput ({ state, myKey, suggest, i18n }) {
     // don't pop the previous entry if still entering a name!
 
     if (e.code === 'Backspace' || e.key === 'Backspace' || e.keyCode === 8) {
-      if (recps.getLength() < MIN_RECPS) return
+      if (mentions.getLength() < MIN_RECPS) return
 
-      recps.pop()
+      mentions.pop()
     }
   })
 
@@ -71,9 +71,9 @@ function RecipientInput ({ state, myKey, suggest, i18n }) {
 
       if (
         (myKey && id !== myKey) && // I'm not adding myself (I'm added later)
-        !recps.find(r => r === id || r.link === id) // Isn't already included
-      ) recps.push({ link: id, name })
-      // NOTE recps need to be stripped down to just ids when
+        !mentions.find(r => r === id || r.link === id) // Isn't already included
+      ) mentions.push({ link: id, name })
+      // NOTE mentions need to be stripped down to just ids when
 
       e.target.value = ''
       e.target.placeholder = ''

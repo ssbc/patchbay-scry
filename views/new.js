@@ -15,12 +15,12 @@ module.exports = function ScryNew (opts) {
   const initialState = {
     step: 0,
     title: '',
-    description: '',
+    body: '',
     closesAt: getInitialClosesAt(),
     monthIndex: new Date().getMonth(),
     days: MutantArray([]),
     times: MutantArray([]),
-    recps: MutantArray([])
+    mentions: MutantArray([])
   }
   const state = Struct(initialState)
 
