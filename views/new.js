@@ -49,7 +49,7 @@ module.exports = function ScryNew (opts) {
   ])
 
   function publish () {
-    const { title, days, times, closesAt } = resolve(state)
+    const { title, days, times, closesAt, body, mentions } = resolve(state)
 
     const _days = days
       .map(ev => ev.date)
@@ -70,7 +70,9 @@ module.exports = function ScryNew (opts) {
     const opts = {
       title,
       choices,
-      closesAt: closesAt.toISOString()
+      closesAt: closesAt.toISOString(),
+      body,
+      mentions
     }
 
     scuttle.poll.async.publishMeetingTime(opts, (err, data) => {

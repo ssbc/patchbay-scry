@@ -2,13 +2,13 @@ const { h, computed } = require('mutant')
 const DayPicker = require('../component/day-picker.js')
 const TimePicker = require('../component/time-picker.js')
 
-module.exports = function PickTimes ({ state, prev, next }) {
+module.exports = function PickTimes ({ state, prev, nex }) {
   const nextBtn = computed(state, ({ days, times }) => {
     var opts = (!days.length || !times.length)
       ? { disabled: 'disabled' }
       : { className: '-primary', 'ev-click': next }
 
-    return h('button', opts, 'Scry')
+    return h('button', opts, 'Next')
   })
 
   return h('ScryNewPickTimes', [

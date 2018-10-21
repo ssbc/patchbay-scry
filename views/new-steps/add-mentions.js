@@ -7,7 +7,7 @@ module.exports = function AddMentions ({ state, prev, next, myKey, suggest, avat
       ? { disabled: 'disabled' }
       : { className: '-primary', 'ev-click': next }
 
-    return h('button', opts, 'Next')
+    return h('button', opts, 'Scry')
   })
   return h('ScryAddMentions', [
     h('h1', computed(state.title, title => `Add Description and Invite to ${title}`)),
