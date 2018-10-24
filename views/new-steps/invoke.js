@@ -18,7 +18,8 @@ module.exports = function PickTimes ({ state, prev, next }) {
           placeholder: 'Name of gathering you\'re scrying for',
           'ev-input': ev => {
             state.title.set(ev.target.value)
-          }
+          },
+          'value': state.title
         },
         state.title
       ),
