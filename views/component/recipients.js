@@ -8,7 +8,7 @@ function Recipients (opts) {
     suggest = {},
     avatar = (id, size) => id,
     i18n = (key) => {
-      const translations = { 'scry.action.invite': '(optional) invite to this scry' }
+      const translations = { 'scry.action.invite': '+ Add friends (optional)' }
       return translations[key]
     }
   } = opts
