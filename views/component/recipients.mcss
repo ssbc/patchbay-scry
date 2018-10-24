@@ -1,0 +1,50 @@
+$ScryRecpsBackground {
+  background-color: #fff;
+  color: #222;
+}
+$ScryRecpCard {
+  background-color: #eaeaea
+  color: #222
+}
+ScryRecipients {
+  $ScryRecpsBackground
+  min-height: 3.5rem
+  padding-left: .5rem
+  padding-bottom: .5rem
+  /* border: 1px solid gainsboro */
+  display: flex
+  flex-wrap: wrap
+  align-items: center
+  div.recp {
+    $ScryRecpCard
+    height: 2.5rem
+    margin: 0.5rem 1rem 0 0
+    display: flex
+    align-items: center
+
+    a {
+      img.Avatar { 
+      }
+    }
+    div.name {
+      margin: 0 1rem 0 .5rem
+    }
+  }
+  input.hidden {
+    margin-top:.5rem
+    flex-basis: 3rem
+    flex-grow: 1
+    min-width: 3rem
+    min-height: 3rem
+    height: 100%
+    color: #555
+    font-size: .9rem
+    border: none
+    outline: none
+    box-shadow: none
+    background: none
+    ::placeholder {
+      color: #555
+    }
+  }
+}

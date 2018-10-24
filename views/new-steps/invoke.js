@@ -22,6 +22,16 @@ module.exports = function PickTimes ({ state, prev, next }) {
         },
         state.title
       ),
+      h('label.description', 'Description'),
+      h('textarea',
+        {
+          placeholder: '(Optional) Add more details to the scry',
+          'ev-input': ev => {
+            state.description.set(ev.target.value)
+          }
+        },
+        state.description
+      ),
       h('label.closes-at', 'Closes'),
       h('div.closes-at', [
         h('div.closes-at-helper', prettyTime(state.closesAt)),

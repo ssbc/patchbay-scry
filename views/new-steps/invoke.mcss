@@ -14,9 +14,9 @@ ScryNewInvoke {
 
   div.details {
     border-radius: var(--br)
-  
+
     padding: var(--boundary)
-    background: hsla(0, 100%, 100%, .5)
+    background: hsla(0, 100%, 100%, .3)
 
     min-height: 20vh
 

@@ -15,7 +15,7 @@ module.exports = function ScryNew (opts) {
   const initialState = {
     step: 0,
     title: '',
-    body: '',
+    description: '',
     closesAt: getInitialClosesAt(),
     monthIndex: new Date().getMonth(),
     days: MutantArray([]),
@@ -49,7 +49,7 @@ module.exports = function ScryNew (opts) {
   ])
 
   function publish () {
-    const { title, days, times, closesAt, body, mentions } = resolve(state)
+    const { title, days, times, closesAt, description, mentions } = resolve(state)
 
     const _days = days
       .map(ev => ev.date)
@@ -71,7 +71,7 @@ module.exports = function ScryNew (opts) {
       title,
       choices,
       closesAt: closesAt.toISOString(),
-      body,
+      body: description,
       mentions
     }
 
