@@ -6,6 +6,11 @@ module.exports = {
         scryShow: require('./app/page/scry-show')
       }
     },
+    message: {
+      html: {
+        render: require('./message/html/render/poll-resolution.js')
+      }
+    },
     router: {
       sync: {
         routes: require('./router/sync/routes')
