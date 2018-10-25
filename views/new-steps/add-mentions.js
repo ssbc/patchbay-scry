@@ -1,33 +1,16 @@
-const { h, computed } = require('mutant')
+const { h } = require('mutant')
 const Recipients = require('../component/recipients')
 
 module.exports = function AddMentions ({ state, prev, next, myKey, suggest, avatar }) {
-  const nextBtn = computed(state, ({ body }) => {
-    var opts = (!body)
-      ? { disabled: 'disabled' }
-      : { className: '-primary', 'ev-click': next }
-
-    return h('button', opts, 'Scry')
-  })
   return h('ScryAddMentions', [
-    h('h1', computed(state.title, title => `Add Description and Invite to ${title}`)),
+    h('h1', title => 'Invite friends (Optional)'),
     h('div.details', [
-      h('label.closes-at', 'Description'),
-      h('textarea',
-        {
-          placeholder: '',
-          'ev-input': ev => {
-            state.body.set(ev.target.value)
-          }
-        },
-        state.body
-      ),
-      h('label', 'Recipients'),
+      h('label', 'If you\'d like to make sure particular friends see this, you can list them here and this scry will show up in their mentions / notifications'),
       Recipients({ state, myKey, suggest, avatar })
     ]),
     h('div.actions', [
-      prev ? h('button', { 'ev-click': prev }, 'Cancel') : null,
-      next ? nextBtn : null
+      prev ? h('button', { 'ev-click': prev }, 'Back') : null,
+      next ? h('button', { 'ev-click': next }, 'Publish') : null
     ])
   ])
 }

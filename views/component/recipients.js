@@ -8,12 +8,12 @@ function Recipients (opts) {
     suggest = {},
     avatar = (id, size) => id,
     i18n = (key) => {
-      const translations = { 'gathering.action.addMoreRecps': '(optional) invite to this scry' }
+      const translations = { 'scry.action.invite': '+ Add friends (optional)' }
       return translations[key]
     }
   } = opts
 
-  return h('GatheringRecipients', [
+  return h('ScryRecipients', [
     map(state.mentions, recp => Recipient({ recp, avatar })),
     RecipientInput({ state, myKey, suggest, i18n })
   ])
@@ -38,7 +38,7 @@ function RecipientInput ({ state, myKey, suggest, i18n }) {
   const { mentions } = state
 
   const input = h('input.hidden', {
-    placeholder: i18n('gathering.action.addMoreRecps')
+    placeholder: i18n('scry.action.invite')
   })
 
   suggestify()

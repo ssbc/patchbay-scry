@@ -2,7 +2,7 @@ const { h, computed } = require('mutant')
 const DayPicker = require('../component/day-picker.js')
 const TimePicker = require('../component/time-picker.js')
 
-module.exports = function PickTimes ({ state, prev, nex }) {
+module.exports = function PickTimes ({ state, prev, next }) {
   const nextBtn = computed(state, ({ days, times }) => {
     var opts = (!days.length || !times.length)
       ? { disabled: 'disabled' }
