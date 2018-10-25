@@ -24,24 +24,27 @@ module.exports = function ScryNew (opts) {
   }
   const state = Struct(initialState)
 
+  const prevStep = () => state.step.set(resolve(state.step) - 1)
+  const nextStep = () => state.step.set(resolve(state.step) + 1)
+
   return h('ScryNew', [
     computed(state.step, step => {
       switch (step) {
         case 0: return Invoke({
           state,
-          next: () => state.step.set(step + 1)
+          next: nextStep
         })
         case 1: return PickTimes({
           state,
-          prev: () => state.step.set(step - 1),
-          next: () => state.step.set(step + 1)
+          prev: prevStep,
+          next: nextStep
         })
         case 2: return AddMentions({
           state,
           myKey,
           avatar,
           suggest,
-          prev: () => state.step.set(step - 1),
+          prev: prevStep,
           next: publish
         })
       }
