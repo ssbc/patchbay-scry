@@ -64,7 +64,13 @@ ScryNewInvoke {
   }
 
   div.actions {
-    justify-self: end
+    /* grid-row: 3 / 4 */
+    grid-column: 1 / 2
+    justify-self: stretch
+
     margin-top: 2rem
+
+    display: flex
+    justify-content: space-between
   }
 }

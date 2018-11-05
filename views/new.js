@@ -6,10 +6,11 @@ const AddMentions = require('./new-steps/add-mentions')
 module.exports = function ScryNew (opts) {
   const {
     scuttle,
-    afterPublish = () => console.log('published scry poll'),
     myKey,
     avatar,
-    suggest
+    suggest,
+    afterPublish = () => console.log('published scry poll'),
+    onCancel
   } = opts
 
   const initialState = {
@@ -32,6 +33,7 @@ module.exports = function ScryNew (opts) {
       switch (step) {
         case 0: return Invoke({
           state,
+          prev: onCancel,
           next: nextStep
         })
         case 1: return PickTimes({

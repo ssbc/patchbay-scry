@@ -16,6 +16,14 @@ module.exports = {
         routes: require('./router/sync/routes')
       }
     },
+    scry: {
+      html: {
+        button: require('./scry/html/button')
+      },
+      sync: {
+        launchModal: require('./scry/sync/launch-modal')
+      }
+    },
     styles: {
       mcss: require('./styles/mcss')
     }
