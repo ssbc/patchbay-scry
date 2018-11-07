@@ -1,0 +1,7 @@
+Scry -index {
+  padding: 0
+
+  display: grid
+  justify-content: stretch
+  align-content: stretch
+}

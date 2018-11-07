@@ -1,0 +1,49 @@
+ScryIndex {
+  padding-top: 1rem
+
+  display: grid
+  justify-content: stretch
+  align-content: stretch
+  width: 100%
+
+  overflow-y: scroll
+
+  div.Scroller {
+    section { }
+
+    section.top {
+      display: grid
+      grid-template-columns: auto auto
+      justify-content: space-between
+
+      margin: .5rem 0
+
+      (button) {
+        border: 1px solid #fff
+
+        -primary { border: initial }
+        :hover { border: initial }
+      }
+
+      div.show {
+        display: grid
+        grid-auto-flow: column
+        align-items: center
+
+        grid-gap: .5rem
+
+      }
+    }
+
+    section.content {
+      background-color: hsla(0, 0% ,0%, 0.08)
+      padding: 1rem
+
+      div.ScryCard {
+        margin-bottom: 1rem
+      }
+    }
+  }
+}
+
+

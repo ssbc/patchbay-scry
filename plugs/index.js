@@ -2,6 +2,7 @@ module.exports = {
   scry: {
     app: {
       page: {
+        scryIndex: require('./app/page/scry-index'),
         scryNew: require('./app/page/scry-new'),
         scryShow: require('./app/page/scry-show')
       }
