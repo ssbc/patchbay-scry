@@ -11,7 +11,7 @@ module.exports = function ScryCard ({ scuttle, msg, mdRenderer, onClick }) {
 
   const closesAt = new Date(closesAtString)
   const date = closesAt.toDateString()
-  const [ _, time, zone ] = closesAt.toTimeString().match(/^(\d+:\d+).*(\(\w+\))$/)
+  const [ _, time, zone ] = closesAt.toTimeString().match(/^(\d+:\d+).*(\([\w\s]+\))$/)
 
   return h('ScryCard', { className: 'Markdown', 'ev-click': onClick }, [
     h('h1', title),
