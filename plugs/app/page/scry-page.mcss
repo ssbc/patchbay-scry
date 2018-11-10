@@ -4,10 +4,11 @@ Scry {
   background: var(--texture), var(--gradient)
   background-blend-mode: darken
 
-  padding: 10vh
+  overflow: auto
 
   display: grid
   grid-template-rows: auto
   justify-content: center
   width: 100%
+
 }

@@ -8,6 +8,7 @@ ScryShow {
 
   display: grid
   justify-content: start
+  grid-gap: 1rem
 
   --chosen-color: hsla(52, 100%, 80%, 1)
   --chosen-color-lighter: hsla(52, 100%, 50%, .2)
@@ -17,24 +18,25 @@ ScryShow {
     margin: 0
   }
 
+  div.description { max-width: 40rem }
+
   div.closes-at {
     color: hsla(0, 0%, 30%, 1)
-    margin: 1rem 0
   }
 
-  div.ScryShowGathering {
-    justify-self: start
-    padding: .5rem
-    background: #fff
+  div.timezone {
+    display: grid
+    grid-template-columns: auto auto
+    grid-gap: .5rem
+    justify-content: end
 
-    a {
-      i.fa { margin: 0 .5rem }
-    }
+    label { opacity: .8 }
+    div.SrcyTimezone {}
   }
 
-  div.ScryShowResults {
-    margin: 1rem 0
-  }
+  div.ScryShowGathering { }
+
+  div.ScryShowResults { }
 
   div.actions {
     display: flex

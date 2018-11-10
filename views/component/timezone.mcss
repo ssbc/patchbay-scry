@@ -1,0 +1,11 @@
+ScryTimezone {
+  font-weight: 600
+  display: flex
+  align-items: center
+
+  span {
+    margin-left: .5rem
+    font-weight: initial
+    font-size: .8rem
+  }
+}

@@ -25,8 +25,6 @@ exports.create = function (api) {
   })
 
   function scryShowPage (poll) {
-    const gatheringModal = ''
-
     const scry = Show({
       poll,
       myFeedId: api.keys.sync.id(),
@@ -38,7 +36,6 @@ exports.create = function (api) {
     scry.title = ''
 
     const page = h('Scry -show', [
-      gatheringModal,
       scry
     ])
     page.title = getContent(poll).title

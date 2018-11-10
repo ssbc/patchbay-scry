@@ -3,8 +3,11 @@ const pull = require('pull-stream')
 const { isGathering } = require('ssb-gathering-schema')
 const getContent = require('ssb-msg-content')
 
+const ShowGathering = require('./component/show-gathering')
+const ShowClosesAt = require('./component/show-closes-at')
 const ShowAuthorActions = require('./component/show-author-actions')
 const ShowResults = require('./component/show-results')
+const Timezone = require('./component/timezone')
 
 // TODO
 // - [x] add mentions to the poll-resolution!
@@ -29,8 +32,13 @@ module.exports = function ScryShow (opts) {
   return h('ScryShow', [
     h('h1', state.current.title),
     ShowClosesAt(state.current),
+    h('div.description', state.current.description),
     ShowGathering(state.current.gathering),
     ShowAuthorActions({ poll, myFeedId, state, scuttle, name, NewGathering }),
+    h('div.timezone', [
+      h('label', 'All times are in your current timezone: '),
+      Timezone()
+    ]),
     ShowResults({ state, myFeedId, name, avatar, symbols }),
     h('div.actions', [
       PublishBtn()
@@ -76,35 +84,6 @@ function validResolution (arr) {
 
 // component
 
-function ShowClosesAt ({ closesAt, resolution, gathering }) {
-  return h('div.closes-at', computed([closesAt, resolution, gathering], (t, resolution, gathering) => {
-    if (gathering) return
-    if (validResolution(resolution)) return
-    if (!t) return
-
-    const distance = t - new Date()
-    if (distance < 0) return 'This scry has closed, but a resolution has yet to be declared.'
-
-    const hours = Math.floor(distance / (60 * 60e3))
-    const days = Math.floor(hours / 24)
-    if (days === 0) return `This scry closes in ${hours % 24} hours`
-    return `This scry closes in ${days} days, ${hours % 24} hours`
-  }))
-}
-
-function ShowGathering (gathering) {
-  return computed(gathering, gathering => {
-    if (!gathering) return
-
-    return h('ScryShowGathering', [
-      h('a.gathering', // TODO not very general!
-        { href: gathering.key },
-        [ h('i.fa.fa-calendar'), 'Gathering: ', gathering.key.slice(0, 9), '...' ]
-      )
-    ])
-  })
-}
-
 // lib/ helper?
 
 function LiveState ({ scuttle, poll, myFeedId }) {
@@ -112,6 +91,7 @@ function LiveState ({ scuttle, poll, myFeedId }) {
     current: Struct({
       keu: '',
       title: '',
+      description: '',
       times: [],
       closesAt: undefined,
       rows: [],
@@ -150,7 +130,7 @@ function fetchState ({ scuttle, poll, myFeedId, state }) {
   scuttle.poll.async.get(poll.key, (err, doc) => {
     if (err) return console.error(err)
 
-    const { title, closesAt, positions, backlinks } = doc
+    const { title, body, closesAt, positions, backlinks } = doc
     const times = doc.results.map(result => result.choice)
     const results = times.map(t => doc.results.find(result => result.choice === t))
     // this ensures results Array is in same order as a times Array
@@ -173,6 +153,7 @@ function fetchState ({ scuttle, poll, myFeedId, state }) {
     state.current.set({
       key: poll.key,
       title,
+      description: body,
       closesAt,
       times,
       rows,

@@ -1,0 +1,10 @@
+ScryShowGathering {
+  justify-self: start
+  padding: .5rem
+  background: #fff
+
+  a {
+    i.fa { margin: 0 .5rem }
+  }
+}
+

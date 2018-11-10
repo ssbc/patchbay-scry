@@ -3,7 +3,7 @@ const { h, resolve, computed } = require('mutant')
 module.exports = function ShowAuthorActions ({ poll, myFeedId, state, scuttle, name, NewGathering }) {
   if (poll.value.author !== myFeedId) return
 
-  return h('ScryShowAuthorActions', computed([state.mode, state.current], ({ isResolving, isPublishing }, current) => {
+  return computed([state.mode, state.current], ({ isResolving, isPublishing }, current) => {
     if (current.gathering) return
 
     const mentions = current.rows
@@ -12,14 +12,14 @@ module.exports = function ShowAuthorActions ({ poll, myFeedId, state, scuttle, n
         return { link: r.author, name: resolve(name(r.author)) || '' }
       })
 
-    return [
+    return h('ScryShowAuthorActions', [
       h('div.resolve', [
         ResolveBtn({ state, isResolving }),
         PublishResolveBtn({ poll, state, scuttle, mentions, isResolving, isPublishing })
       ]),
       PublishGatheringBtn({ NewGathering, poll, current, mentions })
-    ]
-  }))
+    ])
+  })
 }
 
 // components

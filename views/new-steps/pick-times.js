@@ -1,6 +1,7 @@
 const { h, computed } = require('mutant')
 const DayPicker = require('../component/day-picker.js')
 const TimePicker = require('../component/time-picker.js')
+const Timezone = require('../component/timezone.js')
 
 module.exports = function PickTimes ({ state, prev, next }) {
   const nextBtn = computed(state, ({ days, times }) => {
@@ -26,10 +27,7 @@ module.exports = function PickTimes ({ state, prev, next }) {
         TimePicker(state),
         h('div.timezone', [
           h('label', 'Timezone of your scry is'),
-          h('div.zone', [
-            getTimezone(),
-            h('span', ['(UTC ', getTimezoneOffset(), ')'])
-          ])
+          Timezone()
         ])
       ])
     }),
@@ -38,19 +36,4 @@ module.exports = function PickTimes ({ state, prev, next }) {
       next ? nextBtn : null
     ])
   ])
-}
-
-// helpers
-
-function getTimezone () {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone
-  } catch (e) {
-    return '??'
-  }
-}
-
-function getTimezoneOffset () {
-  const offset = new Date().getTimezoneOffset() / -60
-  return offset > 0 ? `+${offset}` : offset
 }

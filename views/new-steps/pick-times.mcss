@@ -33,21 +33,11 @@ ScryNewPickTimes {
       padding: var(--boundary)
       border-top: hsla(0, 0%, 100%, .5) 1px dashed
 
-      label {}
-
-      div.zone {
-        margin-top: .3rem
-
-        font-weight: 600
-        display: flex
-        align-items: center
-
-        span {
-          margin-left: .5rem
-          font-weight: initial
-          font-size: .8rem
-        }
+      label {
+        margin-bottom: .3rem
       }
+
+      div.ScryTimezone {}
     }
   }
 

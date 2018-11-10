@@ -2,6 +2,7 @@ Scry -new {
   div.ScryNew {
     min-width: 600px
     max-width: 800px
+    margin: 10vh
   }
 
   (button) {
