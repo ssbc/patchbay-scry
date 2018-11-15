@@ -33,7 +33,9 @@
     "read-directory": "^3.0.0",
     "scuttle-poll": "^1.5.1",
     "ssb-gathering-schema": "^1.2.0",
-    "suggest-box": "^2.2.3"
+    "suggest-box": "^2.2.3",
+    "ssb-msg-content": "^1.0.1",
+    "ssb-poll-schema": "^1.7.1"
   },
   "devDependencies": {
     "electro": "^2.1.1",
