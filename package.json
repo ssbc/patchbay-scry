@@ -1,6 +1,6 @@
 {
   "name": "patchbay-scry",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "figure out a meeting time with friends, (like doodle, but for scuttlebutt)",
   "main": "plugs/index.js",
   "scripts": {
