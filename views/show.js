@@ -22,6 +22,7 @@ module.exports = function ScryShow (opts) {
     scuttle,
     name = k => k.slice(0, 9),
     avatar = k => h('img'),
+    mdRenderer = (text) => text,
     NewGathering,
     testing = false
   } = opts
@@ -32,7 +33,7 @@ module.exports = function ScryShow (opts) {
   return h('ScryShow', [
     h('h1', state.current.title),
     ShowClosesAt(state.current),
-    h('div.description', state.current.description),
+    h('div.description', computed((state.current.description), mdRenderer)),
     ShowGathering(state.current.gathering),
     ShowAuthorActions({ poll, myFeedId, state, scuttle, name, NewGathering }),
     h('div.timezone', [

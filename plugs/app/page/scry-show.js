@@ -15,6 +15,7 @@ exports.needs = nest({
   'about.obs.name': 'first',
   'gathering.sync.launchModal': 'first',
   'keys.sync.id': 'first',
+  'message.html.markdown': 'first',
   'sbot.obs.connection': 'first'
 })
 
@@ -31,6 +32,7 @@ exports.create = function (api) {
       scuttle: Scuttle(api.sbot.obs.connection),
       name: api.about.obs.name,
       avatar: api.about.html.avatar,
+      mdRenderer: api.message.html.markdown,
       NewGathering: api.gathering.sync.launchModal
     })
     scry.title = ''
