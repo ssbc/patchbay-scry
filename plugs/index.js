@@ -9,7 +9,10 @@ module.exports = {
     },
     message: {
       html: {
-        render: require('./message/html/render/poll-resolution.js')
+        render: {
+          pollResolution: require('./message/html/render/poll-resolution.js'),
+          scryNotification: require('./message/html/render/scry-notification.js')
+        }
       }
     },
     router: {
